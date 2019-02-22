@@ -1,4 +1,4 @@
-package com.optaresolutions.executor.model
+package app.model
 
 class Probe {
     String id

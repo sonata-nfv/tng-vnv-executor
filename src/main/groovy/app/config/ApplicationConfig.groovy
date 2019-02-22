@@ -1,4 +1,4 @@
-package com.optaresolutions.executor.config
+package app.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
