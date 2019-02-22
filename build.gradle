@@ -1,22 +1,41 @@
 plugins {
     id 'groovy'
     id 'org.springframework.boot' version '2.1.3.RELEASE'
+    id 'com.palantir.docker' version '0.21.0'
 }
 
 apply plugin: 'groovy'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.palantir.docker'
 
-group 'com.optaresolutions.tango'
 version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
 }
 
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.5.6'
-    compile 'org.yaml:snakeyaml:1.23'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8'
+    compile 'org.apache.commons:commons-lang3:3.4'
     implementation 'org.springframework.boot:spring-boot-starter-web:2.1.3.RELEASE'
     implementation 'org.apache.httpcomponents:httpclient'
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compileOnly "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.21.0"
+}
+
+bootJar {
+    mainClassName = 'app.Application'
+    archiveName = 'tng-vnv-executor.jar'
+}
+
+docker {
+    name "sonatanfv/tng-vnv-executor:${version}"
+    dockerfile file('src/main/docker/Dockerfile')
+    files tasks.bootJar.outputs, 'src/main/resources/application.properties'
+    dependsOn tasks.bootJar
 }
