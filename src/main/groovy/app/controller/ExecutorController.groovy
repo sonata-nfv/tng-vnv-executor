@@ -1,36 +1,60 @@
 package app.controller
 
 
-import app.model.Service
+import app.model.docker_compose.Service
+import app.model.test_descriptor.TestDescriptor
+import app.util.Converter
 import app.util.FileUtils
+import app.util.ResponseUtils
 import groovy.util.logging.Slf4j
+import io.swagger.annotations.Api
+import io.swagger.annotations.ApiImplicitParam
+import io.swagger.annotations.ApiImplicitParams
+import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiResponse
+import io.swagger.annotations.ApiResponses
+import io.swagger.annotations.Example
+import io.swagger.annotations.ExampleProperty
+import io.swagger.models.Response
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Api
 @Slf4j(value = "logger")
 class ExecutorController {
 
     @Autowired
-    app.util.Converter converter
+    Converter converter
 
     @Autowired
     FileUtils fileUtils
 
-    @PostMapping(value = "/test-executions")
-    ResponseEntity<?> testExecutionRequest(@RequestBody String testDescriptorFile) {
+    @Autowired
+    ResponseUtils responseUtils
 
-        def testDescriptor
-        try {
-            testDescriptor = converter.getTestDescriptor(testDescriptorFile)
-        } catch(Exception e) {
-            logger.error("Error reading the test descriptor: ${e.getMessage()}".toString(), e)
-            return ResponseEntity.badRequest()
-                    .body("Error reading the test descriptor, is it valid? ${e.getMessage()}".toString())
+    @RequestMapping(method = RequestMethod.POST,
+            path = "/test-executions",
+            consumes = "application/yaml",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ApiOperation(value = "Start a test", notes = "Receive a test descriptor, check its validity and create the docker-compose and directories, starting the test")
+    @ApiResponses([
+        @ApiResponse(code = 202, message = "Test Descriptor is valid, test is being executed"),
+        @ApiResponse(code = 400, message = "Test Descriptor is not valid"),
+        @ApiResponse(code = 500, message = "There was a problem during the test building")
+    ])
+    ResponseEntity<String> testExecutionRequest(@RequestBody TestDescriptor testDescriptor) {
+
+        if (!testDescriptor.id) {
+            testDescriptor.id = UUID.randomUUID().toString()
         }
 
         def dockerCompose
@@ -38,7 +62,10 @@ class ExecutorController {
             dockerCompose = converter.getDockerCompose(testDescriptor)
         } catch(Exception e) {
             logger.error("Error creating the docker-compose: ${e.getMessage()}".toString(), e)
-            return ResponseEntity.badRequest().body("Error creating the docker-compose: ${e.getMessage()}".toString())
+            return responseUtils.getErrorResponseEntity(
+                    HttpStatus.BAD_REQUEST,
+                    "Error creating the docker-compose: ${e.getMessage()}".toString(),
+                    e.getCause())
         }
 
         try {
@@ -48,10 +75,15 @@ class ExecutorController {
             fileUtils.createDockerComposeFile(testDescriptor.id, dockerComposeString)
         } catch (Exception e) {
             logger.error("Error storing the docker-compose file: ${e.getMessage()}".toString(), e)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error storing the docker-compose file: ${e.getMessage()}".toString())
+            return responseUtils.getErrorResponseEntity(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error storing the docker-compose file: ${e.getMessage()}".toString(),
+                    e.getCause())
         }
 
-        return ResponseEntity.ok(testDescriptor.id)
+        return responseUtils.getResponseEntity(
+                HttpStatus.ACCEPTED,
+                "test-id",
+                testDescriptor.id)
     }
 }

@@ -1,17 +1,18 @@
 package app.util
 
-import app.model.DockerCompose
-import app.model.Probe
-import app.model.Service
-import app.model.TestDescriptor
-import app.model.TestDescriptorExercisePhase
-import app.model.TestDescriptorPhases
-import app.model.TestDescriptorSetupPhase
+import app.model.docker_compose.DockerCompose
+import app.model.test_descriptor.Probe
+import app.model.docker_compose.Service
+import app.model.test_descriptor.TestDescriptor
+import app.model.test_descriptor.TestDescriptorExercisePhase
+import app.model.test_descriptor.TestDescriptorPhases
+import app.model.test_descriptor.TestDescriptorSetupPhase
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
 import org.springframework.context.annotation.Scope
@@ -57,6 +58,7 @@ class Converter {
     private String NO_ENTRYPOINT_START_DELAY
 
     @Autowired
+    @Qualifier("yaml")
     ObjectMapper mapper
 
 

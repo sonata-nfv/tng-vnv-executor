@@ -1,7 +1,7 @@
 package app.util
 
 
-import app.model.Service
+import app.model.docker_compose.Service
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
 import org.springframework.context.annotation.Scope

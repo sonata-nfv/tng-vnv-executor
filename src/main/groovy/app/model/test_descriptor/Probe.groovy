@@ -1,4 +1,4 @@
-package app.model
+package app.model.test_descriptor
 
 class Probe {
     String id

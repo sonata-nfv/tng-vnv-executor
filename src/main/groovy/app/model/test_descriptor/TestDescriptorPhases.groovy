@@ -1,4 +1,4 @@
-package app.model
+package app.model.test_descriptor
 
 enum TestDescriptorPhases {
     SETUP_PHASE("setup"), EXERCISE_PHASE("exercise"), VERIFICATION_PHASE("verification")
