@@ -14,6 +14,12 @@ Once tests are finished, Executor check validation and verification conditions, 
 
 ## Build from source code
 
+This will generate a docker image with the latest version of the code. Before building, a test suite is executed.
+
+```bash
+./gradlew clean test build docker
+```
+
 ## Run the docker image
 
 ### Health checking
@@ -23,7 +29,7 @@ Once tests are finished, Executor check validation and verification conditions, 
 ## Dependencies
 
 ## Contributing
-Contributing to the Gatekeeper is really easy. You must:
+Contributing to the V&V Executor is really easy. You must:
 
 1. Clone [this repository](http://github.com/sonata-nfv/tng-vnv-executor);
 1. Work on your proposed changes, preferably through submiting [issues](https://github.com/sonata-nfv/tng-vnv-executor/issues);
@@ -37,6 +43,7 @@ This 5GTANGO component is published under Apache 2.0 license. Please see the [LI
 
 The following lead developers are responsible for this repository and have admin rights. They can, for example, merge pull requests.
 
+* Laura Álvarez ([LauraAnt](https://github.com/LauraAnt))
 * Santiago Rodríguez ([srodriguezOPT](https://github.com/srodriguezOPT))
 * Felipe Vicens ([felipevicens](https://github.com/felipevicens))
 * José Bonnet ([jbonnet](https://github.com/jbonnet))
