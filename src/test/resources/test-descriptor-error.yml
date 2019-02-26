@@ -11,7 +11,7 @@ test_category: benchmarking
 phases:
   - id: setup
     steps:
-      - name: deployment
+        name: deployment
         description: Deploying a NS
         action: deploy
         # instantiation_parameters:

@@ -2,7 +2,7 @@ import app.config.RestConfig
 import app.model.test_descriptor.*
 import spock.lang.Specification
 
-class TestDescriptionValidSpec extends Specification {
+class TestDescriptionSpec extends Specification {
 
     static def mapper
     static def testDescriptorString
@@ -61,4 +61,14 @@ class TestDescriptionValidSpec extends Specification {
         then: verificationPhase.steps.size() > 0
     }
 
+    def "Test Descriptor is not valid"() {
+
+        setup:
+        def testDescriptorString = getClass().getResource('/test-descriptor-error.yml').text
+        def mapper = new RestConfig().objectMapperYaml()
+
+        when: mapper.readValue(testDescriptorString as String, TestDescriptor.class)
+
+        then: thrown(Exception.class)
+    }
 }

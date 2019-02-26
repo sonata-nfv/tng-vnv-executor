@@ -2,6 +2,7 @@ package app.model.test_descriptor
 
 class TestDescriptorSetupPhase extends TestDescriptorPhase {
 
+    String id = "setup"
     List<TestDescriptorSetupPhaseStep> steps
 
     @Override
