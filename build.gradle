@@ -44,6 +44,6 @@ bootJar {
 docker {
     name "sonatanfv/tng-vnv-executor:${version}"
     dockerfile file('src/main/docker/Dockerfile')
-    files tasks.bootJar.outputs, 'src/main/resources/application.properties'
+    files tasks.bootJar.outputs, 'src/main/resources/application.properties', 'src/main/docker/wait_for.sh'
     dependsOn tasks.bootJar
 }
