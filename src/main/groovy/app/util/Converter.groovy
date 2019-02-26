@@ -64,6 +64,12 @@ class Converter {
     @Value('${TD.ERROR.NO_DEPENDENCY_FOUND}')
     String ERROR_NO_DEPENDENCY_FOUND
 
+    @Value('${DC.WAIT_FOR_SCRIPT}')
+    private String WAIT_FOR_SCRIPT
+
+    @Value('${DC.TEST_PATH}')
+    private String TEST_PATH
+
     @Autowired
     @Qualifier("yaml")
     ObjectMapper mapper
@@ -168,27 +174,28 @@ class Converter {
                 step.instances = 1
             }
 
+            def testPath = String.format(TEST_PATH, testDescriptor.id)
+            def waitForCmd = null
+
             service.scale = step.instances
             if(step.dependency) {
-                for(dep in step.dependency) {
-                    def exists = false
-                    for (auxStep in exercisePhase.steps) {
-                       if(auxStep.name == dep) {
-                           exists = true
-                           break
-                       }
-                    }
 
-                    if(!exists) {
+                service.depends_on = step.dependency
+                for(dep in service.depends_on) {
+                    if(!(probes.get(dep))) {
                         throw new RuntimeException(String.format(ERROR_NO_DEPENDENCY_FOUND, dep))
                     }
+
+                    waitForCmd = waitForCmd == null ? "${WAIT_FOR_SCRIPT} ${dep} ${testPath}".toString() : "${waitForCmd}; ${WAIT_FOR_SCRIPT} ${dep} ${testPath}".toString()
                 }
             }
 
-            service.depends_on = step.dependency
-
             service.volumes = new ArrayList<>()
             service.volumes.add(String.format(VOLUME_PATH, testDescriptor.id, service.name))
+
+            if(waitForCmd) {
+                service.volumes.add("${WAIT_FOR_SCRIPT}:${WAIT_FOR_SCRIPT}".toString())
+            }
 
             if (step.start_delay) {
 
@@ -202,7 +209,7 @@ class Converter {
             }
 
             if(step.entrypoint) {
-                def command = step.start_delay ? "sleep ${step.start_delay}; ${step.entrypoint}".toString() : "${step.entrypoint}".toString()
+                def command = step.start_delay ? "${waitForCmd}; sleep ${step.start_delay}; ${step.entrypoint}".toString() : "${waitForCmd}; ${step.entrypoint}".toString()
                 service.command = String.format(CUSTOM_COMMAND, command)
             }
 

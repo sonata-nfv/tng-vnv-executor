@@ -6,6 +6,7 @@ repos/
 doc/
 /doc/
 .gradle/
+.idea/
 /bin/
 target/
  
