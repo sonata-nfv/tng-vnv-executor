@@ -63,10 +63,9 @@ class ExecutorController {
                     e.getCause())
         }
 
-        def testLocation
         try {
 
-            testLocation = fileUtils.createTestDirectories(testDescriptor.id, new ArrayList<Service>(dockerCompose.services.values()))
+            fileUtils.createTestDirectories(testDescriptor.id, new ArrayList<Service>(dockerCompose.services.values()))
             def dockerComposeString = converter.serializeDockerCompose(dockerCompose)
             fileUtils.createDockerComposeFile(testDescriptor.id, dockerComposeString)
         } catch (Exception e) {
@@ -77,8 +76,35 @@ class ExecutorController {
                     e.getCause())
         }
 
+        //Update Database with docker-compose file and starting status
         def testExecution = new TestExecution(testDescriptor.id, converter.serializeDockerCompose(dockerCompose))
         testExecutionRepository.save(testExecution)
+
+        //Execute docker-compose up command
+
+        sleep(1000)
+
+        //Update Database with running status
+
+        testExecution = testExecutionRepository.findById(testDescriptor.id).orElse(null) as TestExecution
+        if(testExecution) {
+            testExecution.state = TestExecution.TestState.RUNNING
+            testExecutionRepository.save(testExecution)
+        }
+
+        //Wait for completion
+        sleep(5000)
+
+        //Update Database with status completed/error
+
+        testExecution = testExecutionRepository.findById(testDescriptor.id).orElse(null) as TestExecution
+        if(testExecution) {
+            testExecution.state = TestExecution.TestState.COMPLETED
+            testExecutionRepository.save(testExecution)
+        }
+
+        //Execute docker-compose down command and delete volumes/directories
+
 
         return responseUtils.getResponseEntity(
                 HttpStatus.ACCEPTED,

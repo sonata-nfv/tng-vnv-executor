@@ -43,10 +43,10 @@ class TestExecution implements Serializable {
     TestExecution(String id, String dockerCompose) {
         this.id = id
         this.dockerCompose = dockerCompose
-        this.state = TestState.CREATED
+        this.state = TestState.STARTING
     }
 
     enum TestState {
-        EXECUTING, EXECUTED, CANCELLED, CREATED
+        RUNNING, COMPLETED, CANCELLED, STARTING
     }
 }
