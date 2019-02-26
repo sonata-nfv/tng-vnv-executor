@@ -24,9 +24,24 @@ This will generate a docker image with the latest version of the code. Before bu
 
 ### Health checking
 
+Once started, you can check the health endpoint at
+
+http://server:port/actuator/health
+
 ### Swagger UI
 
+Swagger UI can be accessed at
+
+http://server:port/swagger-ui.html
+
 ## Dependencies
+
+- `Java JDK (10+)`
+- `gradle`
+- `docker`
+- `Spring Boot (2.1.3)`
+- `Groovy (2.5.6)`
+- `Swagger (2.9.2)`
 
 ## Contributing
 Contributing to the V&V Executor is really easy. You must:

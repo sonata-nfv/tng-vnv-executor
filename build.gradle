@@ -20,7 +20,7 @@ repositories {
 dependencies {
 
     compileOnly "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.21.0"
-
+    compile("org.springframework.boot:spring-boot-starter-actuator")
     compile 'org.codehaus.groovy:groovy-all:2.5.6'
     testCompile 'org.spockframework:spock-core:1.2-groovy-2.4'
     testCompile('org.springframework.boot:spring-boot-starter-test')
@@ -45,5 +45,6 @@ docker {
     name "sonatanfv/tng-vnv-executor:${version}"
     dockerfile file('src/main/docker/Dockerfile')
     files tasks.bootJar.outputs, 'src/main/resources/application.properties', 'src/main/docker/wait_for.sh'
+    files tasks.bootJar.outputs, 'src/main/docker/wait_for.sh'
     dependsOn tasks.bootJar
 }
