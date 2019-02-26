@@ -1,6 +1,7 @@
 package app.controller
 
-
+import app.database.TestExecution
+import app.database.TestExecutionRepository
 import app.model.docker_compose.Service
 import app.model.test_descriptor.TestDescriptor
 import app.util.Converter
@@ -8,25 +9,14 @@ import app.util.FileUtils
 import app.util.ResponseUtils
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
-import io.swagger.annotations.ApiImplicitParam
-import io.swagger.annotations.ApiImplicitParams
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
-import io.swagger.annotations.Example
-import io.swagger.annotations.ExampleProperty
-import io.swagger.models.Response
-import org.apache.commons.lang3.NotImplementedException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @Api
@@ -41,6 +31,9 @@ class ExecutorController {
 
     @Autowired
     ResponseUtils responseUtils
+
+    @Autowired
+    TestExecutionRepository testExecutionRepository
 
     @RequestMapping(method = RequestMethod.POST,
             path = "/test-executions",
@@ -70,9 +63,10 @@ class ExecutorController {
                     e.getCause())
         }
 
+        def testLocation
         try {
 
-            fileUtils.createTestDirectories(testDescriptor.id, new ArrayList<Service>(dockerCompose.services.values()))
+            testLocation = fileUtils.createTestDirectories(testDescriptor.id, new ArrayList<Service>(dockerCompose.services.values()))
             def dockerComposeString = converter.serializeDockerCompose(dockerCompose)
             fileUtils.createDockerComposeFile(testDescriptor.id, dockerComposeString)
         } catch (Exception e) {
@@ -82,6 +76,9 @@ class ExecutorController {
                     "Error storing the docker-compose file: ${e.getMessage()}".toString(),
                     e.getCause())
         }
+
+        def testExecution = new TestExecution(testDescriptor.id, converter.serializeDockerCompose(dockerCompose))
+        testExecutionRepository.save(testExecution)
 
         return responseUtils.getResponseEntity(
                 HttpStatus.ACCEPTED,
