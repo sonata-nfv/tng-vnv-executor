@@ -57,6 +57,12 @@ class Converter {
     @Value('${TD.ERROR.NO_ENTRYPOINT_START_DELAY}')
     private String NO_ENTRYPOINT_START_DELAY
 
+    @Value('${DC.WAIT_FOR_SCRIPT}')
+    private String WAIT_FOR_SCRIPT
+
+    @Value('${DC.TEST_PATH}')
+    private String TEST_PATH
+
     @Autowired
     @Qualifier("yaml")
     ObjectMapper mapper
@@ -140,10 +146,21 @@ class Converter {
             }
 
             service.scale = step.instances
-            service.depends_on = step.dependency
+
+            //working with dependencies
+            TEST_PATH=String.format(TEST_PATH, testDescriptor.id)
+            service.depends_on = new ArrayList<>()
+            def WAIT_FOR_CMD=""
+            for (dep in step.dependency){
+                service.depends_on.add(dep.toString())
+                WAIT_FOR_CMD = "${WAIT_FOR_CMD}; ${WAIT_FOR_SCRIPT} ${dep} ${TEST_PATH}".toString()
+            }
+            //removing first ";" to command
+            WAIT_FOR_CMD = WAIT_FOR_CMD.replaceFirst("; ","");
 
             service.volumes = new ArrayList<>()
             service.volumes.add(String.format(VOLUME_PATH, testDescriptor.id, service.name))
+            service.volumes.add(String.format(WAIT_FOR_SCRIPT,":",WAIT_FOR_SCRIPT))
 
             if (step.start_delay) {
 
@@ -157,7 +174,7 @@ class Converter {
             }
 
             if(step.entrypoint) {
-                def command = step.start_delay ? "sleep ${step.start_delay}; ${step.entrypoint}".toString() : "${step.entrypoint}".toString()
+                def command = step.start_delay ? "${WAIT_FOR_CMD}; sleep ${step.start_delay}; ${step.entrypoint}".toString() : "{WAIT_FOR_CMD}; ${step.entrypoint}".toString()
                 service.command = String.format(CUSTOM_COMMAND, command)
             }
 
