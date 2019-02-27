@@ -1,4 +1,4 @@
-import app.config.RestConfig
+import app.config.GeneralConfig
 import app.model.test_descriptor.*
 import spock.lang.Specification
 
@@ -10,7 +10,7 @@ class TestDescriptionSpec extends Specification {
 
     def setupSpec() {
         testDescriptorString = getClass().getResource('/test-descriptor-correct.yml').text
-        mapper = new RestConfig().objectMapperYaml()
+        mapper = new GeneralConfig().objectMapperYaml()
     }
 
     def "Test Descriptor is valid"() {
@@ -65,7 +65,7 @@ class TestDescriptionSpec extends Specification {
 
         setup:
         def testDescriptorString = getClass().getResource('/test-descriptor-error.yml').text
-        def mapper = new RestConfig().objectMapperYaml()
+        def mapper = new GeneralConfig().objectMapperYaml()
 
         when: mapper.readValue(testDescriptorString as String, TestDescriptor.class)
 

@@ -1,15 +1,13 @@
-import app.Application
 import app.config.ApplicationConfig
-import app.config.RestConfig
+import app.config.GeneralConfig
 import app.model.test_descriptor.*
 import app.util.Converter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import spock.lang.Specification
 
-@SpringBootTest(classes = [Converter.class, RestConfig.class, ApplicationConfig.class])
+@SpringBootTest(classes = [Converter.class, GeneralConfig.class, ApplicationConfig.class])
 @TestPropertySource("classpath:application.properties")
 class TestDescriptionErrorSpec extends Specification {
 

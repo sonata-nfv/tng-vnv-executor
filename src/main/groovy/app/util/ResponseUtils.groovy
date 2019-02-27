@@ -43,6 +43,6 @@ class ResponseUtils {
     }
 
     ResponseEntity getResponseEntity(HttpStatus status, Map<String, Object> map) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map))
+        return ResponseEntity.status(status).body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map))
     }
 }

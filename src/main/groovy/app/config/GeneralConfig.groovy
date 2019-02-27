@@ -5,25 +5,18 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
-import org.springframework.core.Ordered
 import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import org.springframework.web.filter.CorsFilter
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
-class RestConfig extends WebMvcConfigurerAdapter{
+class GeneralConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     @Qualifier("yaml")
@@ -49,17 +42,6 @@ class RestConfig extends WebMvcConfigurerAdapter{
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
         return mapper
-    }
-
-    @Bean
-    FilterRegistrationBean customCorsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource()
-        CorsConfiguration config = new CorsConfiguration().applyPermitDefaultValues()
-        source.registerCorsConfiguration("/**", config)
-        config.addAllowedMethod(CorsConfiguration.ALL)
-        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source))
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE)
-        return bean
     }
 
     @Override
