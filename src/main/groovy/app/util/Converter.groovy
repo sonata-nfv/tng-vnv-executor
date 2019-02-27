@@ -1,13 +1,8 @@
 package app.util
 
 import app.model.docker_compose.DockerCompose
-import app.model.test_descriptor.Probe
 import app.model.docker_compose.Service
-import app.model.test_descriptor.TestDescriptor
-import app.model.test_descriptor.TestDescriptorExercisePhase
-import app.model.test_descriptor.TestDescriptorPhases
-import app.model.test_descriptor.TestDescriptorSetupPhase
-import app.model.test_descriptor.TestDescriptorVerificationPhase
+import app.model.test_descriptor.*
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
