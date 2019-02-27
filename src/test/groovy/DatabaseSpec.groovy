@@ -17,7 +17,7 @@ class DatabaseSpec extends Specification {
 
     static TestExecution testExecution
 
-    def setup() {
+    def setupSpec() {
         testExecution = new TestExecution()
         testExecution.id = UUID.randomUUID().toString()
         testExecution.state = TestExecution.TestState.STARTING
@@ -31,11 +31,33 @@ class DatabaseSpec extends Specification {
 
         then:
         noExceptionThrown()
-//        aux.created != null
-//        aux.lasModifiedDate != null
+        aux.created != null
+        aux.lasModifiedDate != null
+        aux.state == TestExecution.TestState.STARTING
 
-        cleanup: testExecutionRepository.delete(aux)
+    }
 
+    def "TestExecution updating"() {
+
+        setup: testExecution.state = TestExecution.TestState.CANCELLED
+        when:
+        testExecutionRepository.save(testExecution)
+        def aux = testExecutionRepository.findById(testExecution.id).get()
+
+        then:
+        noExceptionThrown()
+        aux.state == TestExecution.TestState.CANCELLED
+        aux.created != null
+        aux.lasModifiedDate != null
+    }
+
+    def "TestExecution deleted"() {
+
+        when:
+        testExecutionRepository.delete(testExecution)
+        testExecutionRepository.findById(testExecution.id).get()
+
+        then: thrown(NoSuchElementException.class)
     }
 
 }

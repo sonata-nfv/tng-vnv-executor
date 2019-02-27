@@ -2,10 +2,12 @@ package app.database
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 
 import javax.persistence.*
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 class TestExecution implements Serializable {
 
     @Id
@@ -21,13 +23,13 @@ class TestExecution implements Serializable {
     String dockerCompose
 
     @CreatedDate
-    @Column(name = "created", insertable = true, updatable = false)
+    @Column(name = "created", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     Date created
 
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "lastModified", insertable = false, updatable = true)
+    @Column(name = "lastModified")
     Date lasModifiedDate
 
 
