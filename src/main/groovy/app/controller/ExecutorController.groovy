@@ -18,6 +18,8 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
+import java.util.concurrent.ExecutionException
+
 @RestController
 @Api
 @Slf4j(value = "logger")
@@ -48,13 +50,17 @@ class ExecutorController {
     ])
     ResponseEntity<String> testExecutionRequest(@RequestBody TestDescriptor testDescriptor) {
 
-        if (!testDescriptor.id) {
+
+        // ID is generated, never will already exist in DB
+        testDescriptor.id = UUID.randomUUID().toString()
+        while(testExecutionRepository.findById(testDescriptor.id).isPresent()) {
             testDescriptor.id = UUID.randomUUID().toString()
         }
 
         def dockerCompose
         try {
             dockerCompose = converter.getDockerCompose(testDescriptor)
+
         } catch(Exception e) {
             logger.error("Error creating the docker-compose: ${e.getMessage()}".toString(), e)
             return responseUtils.getErrorResponseEntity(
@@ -64,10 +70,10 @@ class ExecutorController {
         }
 
         try {
-
             fileUtils.createTestDirectories(testDescriptor.id, new ArrayList<Service>(dockerCompose.services.values()))
             def dockerComposeString = converter.serializeDockerCompose(dockerCompose)
             fileUtils.createDockerComposeFile(testDescriptor.id, dockerComposeString)
+
         } catch (Exception e) {
             logger.error("Error storing the docker-compose file: ${e.getMessage()}".toString(), e)
             return responseUtils.getErrorResponseEntity(
@@ -105,7 +111,6 @@ class ExecutorController {
 
         //Execute docker-compose down command and delete volumes/directories
 
-
         return responseUtils.getResponseEntity(
                 HttpStatus.ACCEPTED,
                 "test-id",
@@ -115,7 +120,6 @@ class ExecutorController {
     @RequestMapping(method = RequestMethod.PUT,
             path = "/test-executions/{test_id}/cancel",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Cancel an executing test", notes = "Receive a test id, check if it is running and cancel it if possible")
     @ApiResponses([
             @ApiResponse(code = 200, message = "Test has been cancelled"),
@@ -124,9 +128,33 @@ class ExecutorController {
     ])
     ResponseEntity<String> testExecutionCancel(@PathVariable("test_id") String testId) {
 
+        //TODO: something more is need to be done?
+
+        def testExecutionOpt = testExecutionRepository.findById(testId.toString())
+        if(testExecutionOpt.isPresent()){
+
+            try {
+                def testExecution = testExecutionOpt.get()
+                testExecution.state = TestExecution.TestState.CANCELLED
+                testExecutionRepository.save(testExecution)
+
+                return responseUtils.getResponseEntity(
+                        HttpStatus.OK,
+                        "test-state",
+                        TestExecution.TestState.CANCELLED)
+
+            } catch (Exception e) {
+                logger.error("Error cancelling the test execution ${testId}: ${e.getMessage()}".toString(), e)
+                return responseUtils.getErrorResponseEntity(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Error cancelling the test execution ${testId}: ${e.getMessage()}".toString(),
+                        e.getCause())
+            }
+        }
+
         return responseUtils.getErrorResponseEntity(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Method not implemented yet",
+                HttpStatus.NOT_FOUND,
+                "Test not found",
                 null)
     }
 }
