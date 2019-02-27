@@ -13,12 +13,11 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.task.TaskExecutor
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-
-import java.util.concurrent.ExecutionException
 
 @RestController
 @Api
@@ -30,6 +29,9 @@ class ExecutorController {
 
     @Autowired
     FileUtils fileUtils
+
+    @Autowired
+    TaskExecutor taskExecutor
 
     @Autowired
     ResponseUtils responseUtils
@@ -82,34 +84,18 @@ class ExecutorController {
                     e.getCause())
         }
 
-        //Update Database with docker-compose file and starting status
-        def testExecution = new TestExecution(testDescriptor.id, converter.serializeDockerCompose(dockerCompose))
-        testExecutionRepository.save(testExecution)
-
-        //Execute docker-compose up command
-
-        sleep(1000)
-
-        //Update Database with running status
-
-        testExecution = testExecutionRepository.findById(testDescriptor.id).orElse(null) as TestExecution
-        if(testExecution) {
-            testExecution.state = TestExecution.TestState.RUNNING
+        try {
+            def testExecution = new TestExecution(testDescriptor.id, converter.serializeDockerCompose(dockerCompose))
             testExecutionRepository.save(testExecution)
+        } catch(Exception e) {
+            logger.error("Error storing the test exercise in DB: ${e.getMessage()}".toString(), e)
+            return responseUtils.getErrorResponseEntity(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error storing the test exercise in DB: ${e.getMessage()}".toString(),
+                    e.getCause())
         }
 
-        //Wait for completion
-        sleep(5000)
-
-        //Update Database with status completed/error
-
-        testExecution = testExecutionRepository.findById(testDescriptor.id).orElse(null) as TestExecution
-        if(testExecution) {
-            testExecution.state = TestExecution.TestState.COMPLETED
-            testExecutionRepository.save(testExecution)
-        }
-
-        //Execute docker-compose down command and delete volumes/directories
+        executeTest(testDescriptor.id)
 
         return responseUtils.getResponseEntity(
                 HttpStatus.ACCEPTED,
@@ -156,5 +142,38 @@ class ExecutorController {
                 HttpStatus.NOT_FOUND,
                 "Test not found",
                 null)
+    }
+
+    private void executeTest(final String testId) {
+        taskExecutor.execute(new Runnable() {
+            @Override
+            void run() {
+
+                //Execute docker-compose up command
+
+                sleep(1000)
+
+                //Update Database with running status
+
+                def testExecution = testExecutionRepository.findById(testId).orElse(null) as TestExecution
+                if(testExecution) {
+                    testExecution.state = TestExecution.TestState.RUNNING
+                    testExecutionRepository.save(testExecution)
+                }
+
+                //Wait for completion
+                sleep(5000)
+
+                //Update Database with status completed/error
+
+                testExecution = testExecutionRepository.findById(testId).orElse(null) as TestExecution
+                if(testExecution) {
+                    testExecution.state = TestExecution.TestState.COMPLETED
+                    testExecutionRepository.save(testExecution)
+                }
+
+                //Execute docker-compose down command and delete volumes/directories
+            }
+        })
     }
 }
