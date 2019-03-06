@@ -8,7 +8,7 @@ apply plugin: 'groovy'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.palantir.docker'
 
-version '1.0-SNAPSHOT'
+version 'latest'
 
 repositories {
     mavenCentral()
@@ -37,14 +37,13 @@ dependencies {
 }
 
 bootJar {
+    baseName = 'tng-vnv-executor'
     mainClassName = 'app.Application'
     archiveName = 'tng-vnv-executor.jar'
 }
 
 docker {
-    name "sonatanfv/tng-vnv-executor:${version}"
+    name "${dockerTag}"
     dockerfile file('src/main/docker/Dockerfile')
     files tasks.bootJar.outputs, 'src/main/resources/application.properties', 'src/main/docker/wait_for.sh'
-    files tasks.bootJar.outputs, 'src/main/docker/wait_for.sh'
-    dependsOn tasks.bootJar
 }
