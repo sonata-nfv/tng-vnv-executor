@@ -22,7 +22,6 @@ do
 
 	while [ "$exitTrue" != "true" ]
 	do
-
 		echo Checking $container_name
 
         echo "docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${container_name}"
