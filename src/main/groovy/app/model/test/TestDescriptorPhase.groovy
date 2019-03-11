@@ -1,4 +1,4 @@
-package app.model.test_descriptor
+package app.model.test
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -24,7 +24,7 @@ class TestDescriptorPhase {
 
     @Override
     String toString() {
-        return "TestDescriptorPhase{id=${id}, steps=${steps.toString()}}"
+        return "TestDescriptorPhase{uuid=${id}, steps=${steps.toString()}}"
     }
 }
 

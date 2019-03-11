@@ -11,7 +11,7 @@ test_category: benchmarking
 phases:
   - id: setup
     steps:
-      - name: deployment
+        name: deployment
         description: Deploying a NS
         action: deploy
         # instantiation_parameters:
@@ -20,30 +20,7 @@ phases:
       - name: configuration
         description:
         action: configure
-        probes:
-          - id: initiator
-            name: initiator
-            image: sonatanfv/tng-media-pilot-initiator
-            description: "A service initial configuration container"
-            parameters:
-              - CAMERA: test
-              - CMS: cms-vnfd.api.serviceendpoint
-          - id: cpe
-            name: cpe
-            image: sonatanfv/tng-media-pilot-cpe
-            description: "Content Producer Emulator (CPE) To generate a RTMP flow"
-            parameters:
-              - AGGREGATOR: ma-vnfd.rtmp.serviceendpoint
-              - APP: test
-              - STREAM: test
-          - id: cce
-            name: cce
-            image: sonatanfv/tng-media-pilot-cce
-            description: "Content Consumer Emulator (CCE) To play HLS flows from Streaming engine"
-            parameters:
-              - STREAMMING_ENGINE: mse-vnfd.hls.serviceendpoint
-              - STREAM: test
-  - id: exercise
+  - id: excercise
     steps:
       - name: configure_service
         description: Configuration of the service previuos start tests
@@ -59,7 +36,7 @@ phases:
         run: cpe
         index: 1
         start_delay: 5
-        entrypoint: /path-to-executable/executable.sh
+        command: /path-to-executable/executable.sh
         instances: 1
         output:
           - results: logs.txt
@@ -71,7 +48,7 @@ phases:
         run: cce
         index: 2
         start_delay: 15
-        entrypoint: /path-to-executable/executable.sh
+        command: /path-to-executable/executable.sh
         instances: 10
         output:
           - results: logs.txt

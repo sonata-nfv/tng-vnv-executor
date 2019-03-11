@@ -1,4 +1,4 @@
-package app.model.test_descriptor
+package app.model.test
 
 class TestDescriptorSetupPhaseStep extends TestDescriptorPhaseStep {
 

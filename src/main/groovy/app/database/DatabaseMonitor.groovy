@@ -46,7 +46,7 @@ class DatabaseMonitor {
 
         for(oldTestExecution in oldTestExecutions) {
             testExecutionRepository.delete(oldTestExecution)
-            logger.info("Test deleted: ${oldTestExecution.id}")
+            logger.info("Test deleted: ${oldTestExecution.uuid}")
         }
     }
 }

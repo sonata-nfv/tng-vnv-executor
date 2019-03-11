@@ -11,8 +11,8 @@ import javax.persistence.*
 class TestExecution implements Serializable {
 
     @Id
-    @Column(name = "id", updatable = false, nullable = false)
-    String id
+    @Column(name = "uuid", updatable = false, nullable = false)
+    String uuid
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -35,13 +35,13 @@ class TestExecution implements Serializable {
 
     TestExecution() {}
 
-    TestExecution(String id, String dockerCompose) {
-        this.id = id
+    TestExecution(String uuid, String dockerCompose) {
+        this.uuid = uuid
         this.dockerCompose = dockerCompose
         this.state = TestState.STARTING
     }
 
     enum TestState {
-        RUNNING, COMPLETED, CANCELLED, STARTING
+        RUNNING, COMPLETED, CANCELLING, CANCELLED, STARTING, ERROR
     }
 }

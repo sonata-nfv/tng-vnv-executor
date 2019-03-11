@@ -1,4 +1,4 @@
-package app.model.test_descriptor
+package app.model.test
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.swagger.annotations.ApiModel
@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty
 class TestDescriptor {
 
     @ApiModelProperty(required = false, hidden = true)
-    String id
+    String uuid
 
     List<TestDescriptorPhase> phases = new ArrayList<>()
 

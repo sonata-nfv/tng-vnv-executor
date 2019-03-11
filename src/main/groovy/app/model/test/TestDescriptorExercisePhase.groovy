@@ -1,4 +1,4 @@
-package app.model.test_descriptor
+package app.model.test
 
 class TestDescriptorExercisePhase extends TestDescriptorPhase {
 
@@ -7,7 +7,7 @@ class TestDescriptorExercisePhase extends TestDescriptorPhase {
 
     @Override
     String toString() {
-        return "TestDescriptorExercisePhase{id=${id}, steps=${steps.toString()}}"
+        return "TestDescriptorExercisePhase{uuid=${id}, steps=${steps.toString()}}"
     }
 }
 
