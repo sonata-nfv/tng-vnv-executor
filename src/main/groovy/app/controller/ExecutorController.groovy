@@ -223,8 +223,8 @@ class ExecutorController {
                 try {
                     for (service in dockerCompose.services) {
                         logger.info("waiting for ${testId}-${service.value.getName()}")
-                        logger.info("/executor/bash_scripts/wait_for.sh \"${service.value.getName()}\" \"${testId}\" \"/executor/compose_files/${testId}-docker-compose.yml\"")
-                        process = Runtime.getRuntime().exec("/executor/bash_scripts/wait_for.sh ${service.value.getName()} ${testId} /executor/compose_files/${testId}-docker-compose.yml")
+                        logger.info("sh /executor/bash_scripts/wait_for.sh \"${service.value.getName()}\" \"${testId}\" \"/executor/compose_files/${testId}-docker-compose.yml\"")
+                        process = Runtime.getRuntime().exec("sh /executor/bash_scripts/wait_for.sh ${service.value.getName()} ${testId} /executor/compose_files/${testId}-docker-compose.yml")
                         process.waitFor()
                         logger.info("> ${process}")
                         if (!process.toString().contains("exitValue=0")) {
