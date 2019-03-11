@@ -24,10 +24,10 @@ do
 	do
 		echo Checking $container_name
 
-        echo "docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${container_name}"
+                echo "docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${container_name}"
 		result="$(docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${container_name})"
 		exit_occurrences="$(echo $result | grep -o Exit | wc -l)"
-        echo "exit_occurrences=$exit_occurrences"
+                echo "exit_occurrences=$exit_occurrences"
 
 		if [ "$exit_occurrences" -gt 0 ]
 		then
