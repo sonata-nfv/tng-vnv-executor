@@ -8,7 +8,7 @@ apply plugin: 'groovy'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.palantir.docker'
 
-version '1.0-SNAPSHOT'
+version 'latest'
 
 repositories {
     mavenCentral()
@@ -19,42 +19,31 @@ repositories {
 
 dependencies {
 
-    // Docker plugin
     compileOnly "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.21.0"
-
-    // General dependencies
+    compile("org.springframework.boot:spring-boot-starter-actuator")
     compile 'org.codehaus.groovy:groovy-all:2.5.6'
-    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8'
-    compile 'org.apache.commons:commons-lang3:3.4'
-    implementation 'org.apache.httpcomponents:httpclient'
-
-    implementation 'org.springframework.boot:spring-boot-starter-web:2.1.3.RELEASE'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.1.3.RELEASE'
-
-    // Documentation
-    compile 'io.springfox:springfox-swagger2:2.9.2'
-    compile 'io.springfox:springfox-swagger-ui:2.9.2'
-
-    // Database
-    compile 'com.h2database:h2:1.4.198'
-
-
-    // Tests
     testCompile 'org.spockframework:spock-core:1.2-groovy-2.4'
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile group: 'org.spockframework', name: 'spock-spring', version: '1.2-groovy-2.4'
+    
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.1.3.RELEASE'
+    implementation 'org.apache.httpcomponents:httpclient'
 
-
+    compile 'io.springfox:springfox-swagger2:2.9.2'
+    compile 'io.springfox:springfox-swagger-ui:2.9.2'
 }
 
 bootJar {
+    baseName = 'tng-vnv-executor'
     mainClassName = 'app.Application'
     archiveName = 'tng-vnv-executor.jar'
 }
 
 docker {
-    name "sonatanfv/tng-vnv-executor:${version}"
+    name "${dockerTag}"
     dockerfile file('src/main/docker/Dockerfile')
     files tasks.bootJar.outputs, 'src/main/resources/application.properties', 'src/main/docker/wait_for.sh'
-    dependsOn tasks.bootJar
 }
