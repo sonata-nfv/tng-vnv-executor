@@ -35,13 +35,9 @@
 package app.util
 
 import app.model.docker_compose.DockerCompose
-import app.model.test_descriptor.Probe
 import app.model.docker_compose.Service
-import app.model.test_descriptor.TestDescriptor
-import app.model.test_descriptor.TestDescriptorExercisePhase
-import app.model.test_descriptor.TestDescriptorPhases
-import app.model.test_descriptor.TestDescriptorSetupPhase
-import app.model.test_descriptor.TestDescriptorVerificationPhase
+
+import app.model.test.*
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -65,8 +61,8 @@ class Converter {
     @Value('${DC.VOLUME_PATH}')
     String VOLUME_PATH
 
-    @Value('${DC.CUSTOM_COMMAND}')
-    String CUSTOM_COMMAND
+    //@Value('${DC.CUSTOM_COMMAND}')
+    //String CUSTOM_COMMAND
 
     @Value('${TD.ERROR.NO_PHASES_INFO}')
     String ERROR_NO_PHASES_INFO
@@ -92,6 +88,9 @@ class Converter {
     @Value('${TD.ERROR.NO_ENTRYPOINT_START_DELAY}')
     String ERROR_NO_ENTRYPOINT_START_DELAY
 
+    @Value('${TD.ERROR.NO_ENTRYPOINT_DEPENDENCY}')
+    String ERROR_NO_ENTRYPOINT_DEPENDENCY
+
     @Value('${TD.ERROR.DUPLICATE_SERVICE}')
     String ERROR_DUPLICATE_SERVICE
 
@@ -104,6 +103,15 @@ class Converter {
     @Value('${DC.TEST_PATH}')
     private String TEST_PATH
 
+    @Value('${DC.VOLUME_DOCKER_SOCK}')
+    private String VOLUME_DOCKER_SOCK
+
+    @Value('${DC.VOLUME_DOCKER}')
+    private String VOLUME_DOCKER
+
+    @Value('${DC.VOLUME_COMPOSE_FILE}')
+    private String VOLUME_COMPOSE_FILE
+
     @Autowired
     @Qualifier("yaml")
     ObjectMapper mapper
@@ -112,17 +120,17 @@ class Converter {
     private Converter() {}
 
     static Converter getInstance() {
-        if(!instance) {
+        if (!instance) {
             instance = new Converter()
         }
         return instance
     }
 
-    TestDescriptor getTestDescriptor(String testDescriptorString) throws IOException, JsonParseException, JsonMappingException{
+    TestDescriptor getTestDescriptor(String testDescriptorString) throws IOException, JsonParseException, JsonMappingException {
 
         def testDescriptor = mapper.readValue(testDescriptorString, TestDescriptor.class)
-        if (!testDescriptor.id) {
-            testDescriptor.id = UUID.randomUUID().toString()
+        if (!testDescriptor.uuid) {
+            testDescriptor.uuid = UUID.randomUUID().toString()
         }
 
         logger.debug("Read test descriptor: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testDescriptor)}")
@@ -133,43 +141,43 @@ class Converter {
     DockerCompose getDockerCompose(TestDescriptor testDescriptor) throws RuntimeException {
 
         // Checking if the mandatory components are established
-        if(!testDescriptor.phases) {
+        if (!testDescriptor.phases) {
             throw new RuntimeException(ERROR_NO_PHASES_INFO)
         }
 
         TestDescriptorSetupPhase setupPhase =
                 testDescriptor.getPhase(TestDescriptorPhases.SETUP_PHASE) as TestDescriptorSetupPhase
 
-        if(!setupPhase) {
+        if (!setupPhase) {
             throw new RuntimeException(ERROR_NO_SETUP_PHASE)
         }
 
         TestDescriptorVerificationPhase verificationPhase =
                 testDescriptor.getPhase(TestDescriptorPhases.VERIFICATION_PHASE) as TestDescriptorVerificationPhase
 
-        if(!verificationPhase) {
+        if (!verificationPhase) {
             throw new RuntimeException(ERROR_NO_VERIFICATION_PHASE)
         }
 
         TestDescriptorExercisePhase exercisePhase =
                 testDescriptor.getPhase(TestDescriptorPhases.EXERCISE_PHASE) as TestDescriptorExercisePhase
 
-        if(!exercisePhase) {
+        if (!exercisePhase) {
             throw new RuntimeException(ERROR_NO_EXECUTION_PHASE)
         }
 
-        if(!exercisePhase.steps) {
+        if (!exercisePhase.steps) {
             throw new RuntimeException(ERROR_NO_STEPS_EXECUTION_PHASE)
         }
 
 
-        if(!setupPhase.steps) {
+        if (!setupPhase.steps) {
             throw new RuntimeException(ERROR_NO_PROBES_INFO)
         }
 
         def probes = null
         for (step in setupPhase.steps) {
-            if(step.probes) {
+            if (step.probes) {
                 probes = new HashMap<String, Probe>()
                 for (probe in step.probes) {
                     probes.put(probe.id, probe)
@@ -179,72 +187,118 @@ class Converter {
             }
         }
 
-        if(!probes){
+        if (!probes) {
             throw new RuntimeException(ERROR_NO_PROBES_INFO)
         }
 
         // Creating the docker-compose
         def dockerCompose = new DockerCompose()
-        for(step in exercisePhase.steps) {
+        for (step in exercisePhase.steps) {
 
             for (auxStep in exercisePhase.steps) {
-                if(exercisePhase.steps.indexOf(auxStep) == exercisePhase.steps.indexOf(step)) {
+                if (exercisePhase.steps.indexOf(auxStep) == exercisePhase.steps.indexOf(step)) {
                     continue
                 }
 
-                if(auxStep.name == step.name) {
+                if (auxStep.name == step.name) {
                     throw new RuntimeException(String.format(ERROR_DUPLICATE_SERVICE, step.name))
                 }
             }
 
             Probe probe = probes.get(step.run) as Probe
-            if(!probe) {
+            if (!probe) {
                 throw new RuntimeException(String.format(ERROR_NO_PROBE_ID, step.run))
             }
 
             def service = new Service(probe)
 
-            if(!step.instances) {
+            if (!step.instances) {
                 step.instances = 1
             }
 
-            def testPath = String.format(TEST_PATH, testDescriptor.id)
-            def waitForCmd = null
+            List<String> waitForCmd = new ArrayList<>()
 
             service.scale = step.instances
-            if(step.dependency) {
+            if (step.dependencies) {
 
-                service.depends_on = step.dependency
-                for(dep in service.depends_on) {
-                    if(!(probes.get(dep))) {
+                if (!step.entrypoint) {
+                    throw new RuntimeException(ERROR_NO_ENTRYPOINT_DEPENDENCY)
+                }
+
+                service.depends_on = step.dependencies
+                for (dep in service.depends_on) {
+                    if (!(probes.get(dep))) {
                         throw new RuntimeException(String.format(ERROR_NO_DEPENDENCY_FOUND, dep))
                     }
 
-                    waitForCmd = waitForCmd == null ? "${WAIT_FOR_SCRIPT} ${dep} ${testPath}".toString() : "${waitForCmd}; ${WAIT_FOR_SCRIPT} ${dep} ${testPath}".toString()
+                    waitForCmd.add("${WAIT_FOR_SCRIPT} \"${dep}\" \"${testDescriptor.uuid}\" \"/compose_file/docker-compose.yml\"".toString())
                 }
             }
 
             service.volumes = new ArrayList<>()
-            service.volumes.add(String.format(VOLUME_PATH, testDescriptor.id, service.name))
+            service.volumes.add(String.format(VOLUME_COMPOSE_FILE, testDescriptor.uuid))
+            service.volumes.add(String.format(VOLUME_DOCKER_SOCK))
+            service.volumes.add(String.format(VOLUME_DOCKER))
+            service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid, service.name))
 
-            if(waitForCmd) {
+            if (waitForCmd.size() != 0) {
                 service.volumes.add("${WAIT_FOR_SCRIPT}:${WAIT_FOR_SCRIPT}".toString())
             }
 
             if (step.start_delay) {
 
-                if(step.start_delay == 0) {
+                if (step.start_delay == 0) {
                     step.start_delay = null
-                }
-
-                else if(!step.entrypoint) {
+                } else if (!step.entrypoint) {
                     throw new RuntimeException(ERROR_NO_ENTRYPOINT_START_DELAY)
                 }
             }
 
-            if(step.entrypoint) {
-                def command = step.start_delay ? "${waitForCmd}; sleep ${step.start_delay}; ${step.entrypoint}".toString() : "${waitForCmd}; ${step.entrypoint}".toString()
-                service.command = String.format(CUSTOM_COMMAND, command)
+            List<String> entrypoint = new ArrayList<>()
+            List<String> entrypointCommands = new ArrayList<>()
+
+            if (step.entrypoint){
+                if (step.start_delay) {
+                    if (waitForCmd.size() == 0){
+                        entrypointCommands.add("sleep ${step.start_delay}".toString())
+                        entrypointCommands.add(step.entrypoint.toString())
+                    } else {
+                        for (waitCmd in waitForCmd){
+                            entrypointCommands.add(waitCmd.toString())
+                        }
+                        entrypointCommands.add("sleep ${step.start_delay}".toString())
+                        entrypointCommands.add(step.entrypoint.toString())
+                    }
+                } else {
+                    if (waitForCmd.size() == 0){
+                        entrypointCommands.add(step.entrypoint.toString())
+                    } else {
+                        for (waitCmd in waitForCmd){
+                            entrypointCommands.add(waitCmd.toString())
+                        }
+                        entrypointCommands.add(step.entrypoint.toString())
+                    }
+                }
+            }
+
+            if (entrypointCommands.size() != 0) {
+
+                entrypoint.add("/bin/sh")
+                entrypoint.add("-c")
+
+                def entrypointCmd = ""
+
+                for (cmd in entrypointCommands) {
+                    entrypointCmd = "${entrypointCmd}${cmd}\n".toString()
+                }
+
+                entrypoint.add(entrypointCmd)
+
+                service.entrypoint = entrypoint
+            }
+
+            if (step.command) {
+                service.command = step.command
             }
 
             dockerCompose.services.put(service.name, service)

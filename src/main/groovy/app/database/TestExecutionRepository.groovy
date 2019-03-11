@@ -32,36 +32,17 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.test_descriptor
+package app.database
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import io.swagger.annotations.ApiModel
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.jpa.repository.Temporal
+import org.springframework.data.repository.query.Param
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "id",
-        defaultImpl = TestDescriptorPhase.class,
-        visible = true)
+import javax.persistence.TemporalType
 
-@JsonSubTypes([
-        @JsonSubTypes.Type(name = "setup", value = TestDescriptorSetupPhase.class),
-        @JsonSubTypes.Type(name = "exercise", value = TestDescriptorExercisePhase.class),
-        @JsonSubTypes.Type(name = "verification", value = TestDescriptorVerificationPhase.class)
-])
+interface TestExecutionRepository extends JpaRepository<TestExecution, String> {
 
-@ApiModel(subTypes = [TestDescriptorExercisePhase.class, TestDescriptorVerificationPhase.class, TestDescriptorSetupPhase.class])
-class TestDescriptorPhase {
-    String id
-    List<TestDescriptorPhaseStep> steps
-
-    @Override
-    String toString() {
-        return "TestDescriptorPhase{id=${id}, steps=${steps.toString()}}"
-    }
+    @Query("Select t from TestExecution t where t.created <= :limitDate")
+    Collection<TestExecution> findOldTestExecutions(@Param("limitDate") @Temporal(value = TemporalType.TIMESTAMP) Date limitDate);
 }
-
-
-
-

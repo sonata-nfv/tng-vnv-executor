@@ -32,21 +32,30 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.test_descriptor
+package app.model.test
 
-class TestDescriptorExercisePhaseStep extends TestDescriptorPhaseStep {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import io.swagger.annotations.ApiModel
+import io.swagger.annotations.ApiModelProperty
 
-    String run
-    Number start_delay
-    String entrypoint
-    Number instances
-    List<Map<String, String>> output
-    List<String> dependency
+@JsonIgnoreProperties
+@ApiModel(value = "TestDescriptor entity", description = "Complete data of a test descriptor")
+class TestDescriptor {
 
-    @Override
-    String toString() {
-        return "TestDescriptorExercisePhaseStep{name=${name}, description=${description}, run=${run}," +
-                " instances=${instances}, start_delay=${start_delay}, entrypoint=${entrypoint}, output=${output}" +
-                " dependency=${dependency}}"
+    @ApiModelProperty(required = false, hidden = true)
+    String uuid
+
+    List<TestDescriptorPhase> phases = new ArrayList<>()
+
+    TestDescriptorPhase getPhase(TestDescriptorPhases type) {
+        if(phases) {
+            for(phase in phases) {
+                if(type.equalsToString(phase.id)) {
+                    return phase
+                }
+            }
+
+        }
+        return null
     }
 }

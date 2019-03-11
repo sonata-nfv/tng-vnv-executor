@@ -32,15 +32,18 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.docker_compose
+package app.model.test
 
-class DockerCompose {
+class TestDescriptorVerificationPhaseStep extends TestDescriptorPhaseStep {
 
-    String version = "'2.2'"
-    Map<String, Service> services = new HashMap<>()
+    String step
+    //List<Map<String, Object>> condition
+    List<Condition> conditions
 
     @Override
     String toString() {
-        return "DockerCompose{version=${version}, services=${services.toString()}}"
+        return "TestDescriptorVerificationPhaseStep{name=${name}, description=${description}, step=${step}," +
+                " condition=${condition}}"
     }
 }
+

@@ -32,15 +32,16 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.test_descriptor
+package app.model.test
 
-class TestDescriptorVerificationPhase extends TestDescriptorPhase {
+class TestDescriptorExercisePhase extends TestDescriptorPhase {
 
-    String id = "verification"
-    List<TestDescriptorVerificationPhaseStep> steps
+    String id = "exercise"
+    List<TestDescriptorExercisePhaseStep> steps
 
     @Override
     String toString() {
-        return "TestDescriptorVerificationPhase{id=${id}, steps=${steps.toString()}}"
+        return "TestDescriptorExercisePhase{uuid=${id}, steps=${steps.toString()}}"
     }
 }
+

@@ -32,14 +32,31 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.test_descriptor
+package app.model.test
 
-class TestDescriptorPhaseStep {
-    String name
-    String description
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import io.swagger.annotations.ApiModel
+import io.swagger.annotations.ApiModelProperty
 
-    @Override
-    String toString() {
-        return "TestDescriptorPhaseStep{name=${name}, description=${description}}"
+@JsonIgnoreProperties
+@ApiModel(value = "Test entity", description = "Complete data of a test")
+class Test {
+
+    @ApiModelProperty(required = false, hidden = true)
+    String uuid
+
+    List<Callback> callbacks = new ArrayList<>()
+
+    TestDescriptor test
+
+    Callback getCallback(Callback.CallbackTypes type) {
+        if(callbacks) {
+            for(callback in callbacks) {
+                if(type.equalsToString(callback.name)) {
+                    return callback
+                }
+            }
+        }
+        return null
     }
 }

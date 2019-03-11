@@ -32,18 +32,28 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.test_descriptor
+package app.model.test
 
-class TestDescriptorSetupPhaseStep extends TestDescriptorPhaseStep {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import io.swagger.annotations.ApiModel
+import io.swagger.annotations.ApiModelProperty
 
-    String action
-    List<Probe> probes
+@JsonIgnoreProperties
+@ApiModel(value = "Condition entity", description = "Complete data of a parser")
+class Condition {
+
+    @ApiModelProperty(required = false)
+    String type
+
+    String name
+    String file
+    String find
+    String value
+    String verdict
+    String condition
 
     @Override
     String toString() {
-        return "TestDescriptorSetupPhaseStep{name=${name}, description=${description}, action=${action}," +
-                " probes=${probes}}"
+        return "Condition{type=${type}, name=${name}, file=${file}, find=${find}, value=${value}, verdict=${verdict}, condition=${condition}}"
     }
 }
-
-

@@ -32,18 +32,36 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.test_descriptor
+package app.model.test
 
-enum TestDescriptorPhases {
-    SETUP_PHASE("setup"), EXERCISE_PHASE("exercise"), VERIFICATION_PHASE("verification")
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import io.swagger.annotations.ApiModel
 
-    String name
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "id",
+        defaultImpl = TestDescriptorPhase.class,
+        visible = true)
 
-    TestDescriptorPhases(String name) {
-        this.name = name
-    }
+@JsonSubTypes([
+        @JsonSubTypes.Type(name = "setup", value = TestDescriptorSetupPhase.class),
+        @JsonSubTypes.Type(name = "exercise", value = TestDescriptorExercisePhase.class),
+        @JsonSubTypes.Type(name = "verification", value = TestDescriptorVerificationPhase.class)
+])
 
-    boolean equalsToString(String phase) {
-        return (phase.equalsIgnoreCase(this.name))
+@ApiModel(subTypes = [TestDescriptorExercisePhase.class, TestDescriptorVerificationPhase.class, TestDescriptorSetupPhase.class])
+class TestDescriptorPhase {
+    String id
+    List<TestDescriptorPhaseStep> steps
+
+    @Override
+    String toString() {
+        return "TestDescriptorPhase{uuid=${id}, steps=${steps.toString()}}"
     }
 }
+
+
+
+

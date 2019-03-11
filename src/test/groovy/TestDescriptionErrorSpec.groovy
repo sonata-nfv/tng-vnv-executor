@@ -32,19 +32,17 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app
 
 import app.config.ApplicationConfig
-import app.config.RestConfig
-import app.model.test_descriptor.*
+import app.config.GeneralConfig
+import app.model.test.*
 import app.util.Converter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.TestPropertySource
 import spock.lang.Specification
 
-@SpringBootTest(classes = [Converter.class, RestConfig.class, ApplicationConfig.class])
+@SpringBootTest(classes = [Converter.class, GeneralConfig.class, ApplicationConfig.class])
 @TestPropertySource("classpath:application.properties")
 class TestDescriptionErrorSpec extends Specification {
 
@@ -190,8 +188,9 @@ class TestDescriptionErrorSpec extends Specification {
         def step2 = new TestDescriptorExercisePhaseStep()
         step2.name = "service2"
         step2.run = "probeId"
-        step2.dependency = new ArrayList<>()
-        step2.dependency.add("unknownDependency")
+        step2.entrypoint ="entrypoint"
+        step2.dependencies = new ArrayList<>()
+        step2.dependencies.add("unknownDependency")
         exercisePhase.steps.add(step2)
 
         when: converter.getDockerCompose(testDescriptor)
@@ -250,6 +249,31 @@ class TestDescriptionErrorSpec extends Specification {
         then:
         def ex = thrown(RuntimeException.class)
         ex.message == converter.ERROR_NO_ENTRYPOINT_START_DELAY
+    }
+
+    def "Exercise Phase -- no entrypoint with dependencies"() {
+
+        setup:
+
+        def probe = new Probe()
+        probe.id = "probeId"
+        def list = new ArrayList()
+        list.add(probe)
+        setupPhase.steps.get(0).probes = list
+
+        exercisePhase.steps = new ArrayList<>()
+
+        def step = new TestDescriptorExercisePhaseStep()
+        step.name = "service1"
+        step.run = "probeId"
+        step.dependencies = new ArrayList<>()
+        step.dependencies.add("dependency")
+        exercisePhase.steps.add(step)
+
+        when: converter.getDockerCompose(testDescriptor)
+        then:
+        def ex = thrown(RuntimeException.class)
+        ex.message == converter.ERROR_NO_ENTRYPOINT_DEPENDENCY
     }
 
     def "Verification Phase does not exist"() {

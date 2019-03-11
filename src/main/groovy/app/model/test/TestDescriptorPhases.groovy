@@ -32,15 +32,18 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.docker_compose
+package app.model.test
 
-class DockerCompose {
+enum TestDescriptorPhases {
+    SETUP_PHASE("setup"), EXERCISE_PHASE("exercise"), VERIFICATION_PHASE("verification")
 
-    String version = "'2.2'"
-    Map<String, Service> services = new HashMap<>()
+    String name
 
-    @Override
-    String toString() {
-        return "DockerCompose{version=${version}, services=${services.toString()}}"
+    TestDescriptorPhases(String name) {
+        this.name = name
+    }
+
+    boolean equalsToString(String phase) {
+        return (phase.equalsIgnoreCase(this.name))
     }
 }

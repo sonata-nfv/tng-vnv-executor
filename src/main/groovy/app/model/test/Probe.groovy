@@ -32,15 +32,11 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.docker_compose
+package app.model.test
 
-class DockerCompose {
-
-    String version = "'2.2'"
-    Map<String, Service> services = new HashMap<>()
-
-    @Override
-    String toString() {
-        return "DockerCompose{version=${version}, services=${services.toString()}}"
-    }
+class Probe {
+    String id
+    String name
+    String image
+    List<Map> parameters
 }

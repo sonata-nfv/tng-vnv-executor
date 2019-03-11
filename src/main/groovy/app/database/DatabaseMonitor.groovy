@@ -32,51 +32,55 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.util
+package app.database
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.PropertySource
-import org.springframework.context.annotation.Scope
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-@PropertySource("classpath:application.properties")
-@Scope(value = "singleton")
-
-class ResponseUtils {
+@Slf4j(value = "logger")
+class DatabaseMonitor {
 
     @Autowired
-    ObjectMapper mapper
+    TestExecutionRepository testExecutionRepository
 
-    private static ResponseUtils instance = null
+    @Value('${DB.DELETION_INTERVAL}')
+    String DELETION_INTERVAL
 
-    private ResponseUtils() {}
 
-    static ResponseUtils getInstance() {
-        if(!instance) {
-            instance = new ResponseUtils()
+    @Scheduled(cron = "0 0 * * * * ")
+    void deleteWeekLongTests() {
+
+        def calendar = GregorianCalendar.getInstance(Locale.default) as Calendar
+        calendar.lenient = true
+
+        def interval = DELETION_INTERVAL.trim()
+        def value = Integer.valueOf(interval.substring(0, interval.length()-1)) * (-1)
+        def parameter
+        switch(interval.substring(interval.length()-1)) {
+
+            case "h": parameter = Calendar.HOUR_OF_DAY
+                break
+            case "d": parameter = Calendar.DAY_OF_YEAR
+                break
+            case "w": parameter = Calendar.WEEK_OF_YEAR
+                break
+            case "M": parameter = Calendar.MONTH
+                break
+            default: throw new IllegalArgumentException("The only time values accepted are: h/d/w/M (hour/day/week/Month)")
         }
-        return instance
-    }
 
-    ResponseEntity getResponseEntity(HttpStatus status, String key, Object value) {
-        def map = new HashMap<String, Object>()
-        map.put(key, value)
-        return getResponseEntity(status, map)
-    }
+        calendar.add(parameter, value)
 
-    ResponseEntity getErrorResponseEntity(HttpStatus status, String message, Throwable stack) {
-        def map = new HashMap<String, Object>()
-        map.put("errorCode", status.value())
-        map.put("message", message)
-        map.put("stack", stack)
-        return getResponseEntity(status, map)
-    }
+        def oldTestExecutions = testExecutionRepository.findOldTestExecutions(calendar.time)
+        logger.debug("Number of tests to delete: ${oldTestExecutions.size()}")
 
-    ResponseEntity getResponseEntity(HttpStatus status, Map<String, Object> map) {
-        return ResponseEntity.status(status).body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map))
+        for(oldTestExecution in oldTestExecutions) {
+            testExecutionRepository.delete(oldTestExecution)
+            logger.info("Test deleted: ${oldTestExecution.uuid}")
+        }
     }
 }
