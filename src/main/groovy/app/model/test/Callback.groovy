@@ -39,7 +39,7 @@ import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 
 @JsonIgnoreProperties
-@ApiModel(value = "Callback entity", description = "Complete data of a callback descriptor")
+@ApiModel(value = "Response entity", description = "Complete data of a callback descriptor")
 class Callback {
 
     @ApiModelProperty(required = false, hidden = true)
