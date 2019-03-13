@@ -57,6 +57,7 @@ import io.swagger.annotations.ApiResponses
 import org.apache.http.entity.ContentType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.PropertySource
 import org.springframework.core.task.TaskExecutor
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -69,6 +70,7 @@ import org.springframework.web.client.RestTemplate
 @RestController
 @Api
 @Slf4j(value = "logger")
+@PropertySource("classpath:application.properties")
 class ExecutorController {
 
     @Autowired
