@@ -98,19 +98,22 @@ class Converter {
     String ERROR_NO_DEPENDENCY_FOUND
 
     @Value('${DC.WAIT_FOR_SCRIPT}')
-    private String WAIT_FOR_SCRIPT
+    String WAIT_FOR_SCRIPT
 
     @Value('${DC.TEST_PATH}')
-    private String TEST_PATH
+    String TEST_PATH
 
     @Value('${DC.VOLUME_DOCKER_SOCK}')
-    private String VOLUME_DOCKER_SOCK
+    String VOLUME_DOCKER_SOCK
 
     @Value('${DC.VOLUME_DOCKER}')
-    private String VOLUME_DOCKER
+    String VOLUME_DOCKER
 
     @Value('${DC.VOLUME_COMPOSE_FILE}')
-    private String VOLUME_COMPOSE_FILE
+    String VOLUME_COMPOSE_FILE
+
+    @Value('${DC.VOLUME_DOCKER_COMPOSE_BIN}')
+    String VOLUME_DOCKER_COMPOSE_BIN
 
     @Autowired
     @Qualifier("yaml")
@@ -240,6 +243,7 @@ class Converter {
             service.volumes.add(String.format(VOLUME_DOCKER_SOCK))
             service.volumes.add(String.format(VOLUME_DOCKER))
             service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid, service.name))
+            service.volumes.add(String.format(VOLUME_DOCKER_COMPOSE_BIN))
 
             if (waitForCmd.size() != 0) {
                 service.volumes.add("${WAIT_FOR_SCRIPT}:${WAIT_FOR_SCRIPT}".toString())
