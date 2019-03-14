@@ -47,6 +47,7 @@ pipeline {
       stage('build') {
          steps {
             timestamps {
+                sh 'dos2unix ./src/main/docker/wait_for.sh'
                 sh './gradlew build docker -x test'
             }
          }
