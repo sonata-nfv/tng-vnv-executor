@@ -32,34 +32,12 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.test
+package app.model.callback
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
+class Response {
 
-@JsonIgnoreProperties
-@ApiModel(value = "Response entity", description = "Complete data of a callback descriptor")
-class Callback {
-
-    @ApiModelProperty(required = false, hidden = true)
-    String uuid
-
-    CallbackTypes name
-
-    String path
-
-    enum CallbackTypes {
-        running("running"), cancel("cancel"), finish("finish")
-
-        String name
-
-        CallbackTypes(String name) {
-            this.name = name
-        }
-
-        boolean equalsToString(CallbackTypes name) {
-            return (name.toString().equalsIgnoreCase(this.name))
-        }
-    }
+    String testUuid
+    String status
+    String message
+    String resultsUuid
 }

@@ -50,7 +50,7 @@ class Validator {
 
             if ("json" == (condition.getType())){
 
-                logger.info("Checking that ${condition.getFind()} ${condition.getCondition()} than ${condition.value} in ${resultsFile} file".toString())
+                logger.info("Checking that ${condition.getFind()} ${condition.getCondition()} than ${condition.getValue()} in ${resultsFile} file".toString())
 
                 def value = findDeep(new JsonSlurper().parseText(resultsFile.getText()), condition.getFind()).toString()
 
@@ -99,12 +99,12 @@ class Validator {
                 switch (condition.getCondition()){
                     case "present":
                         if (!resultsFile.getText().contains(condition.getFind())) {
-                            throw  new Exception("Validation [${condition.getFind()} present]  FAILED")
+                            throw  new Exception("Validation [${condition.getFind()} present] FAILED")
                         }
                         break
                     case "not present":
                         if (resultsFile.getText().contains(condition.getFind())) {
-                            throw  new Exception("Validation [${condition.getFind()} not present]FAILED")
+                            throw  new Exception("Validation [${condition.getFind()} not present] FAILED")
                         }
                         break
                     default:

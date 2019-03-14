@@ -33,11 +33,19 @@
  */
 
 
+import app.Application
+import app.config.ApplicationConfig
+import app.config.GeneralConfig
+import app.database.TestExecutionRepository
 import app.model.test.Condition
 import app.util.Validator
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.TestPropertySource
 import spock.lang.Specification
 
+@SpringBootTest(classes = [Application.class, GeneralConfig.class, ApplicationConfig.class, TestExecutionRepository.class])
+@TestPropertySource("classpath:application-test.properties")
 class ValidatorSpec extends Specification {
 
     @Autowired
@@ -46,64 +54,66 @@ class ValidatorSpec extends Specification {
     static File txtFile
     static File jsonFile
     static def ERROR_UNKNOWN_OPTION = "Validation FAILED. Unknown option"
+    static def ERROR_STRING_NOT_PRESENT ="Validation [KK present] FAILED"
+    static def ERROR_STRING_PRESENT ="Validation [OK not present] FAILED"
 
     def setupSpec() {
-        jsonFile = new File('/test-validator.json')
-        txtFile = new File('/test-validator.json')
+        jsonFile = new File(getClass().getResource('/test-validator.json').toURI())
+        txtFile = new File(getClass().getResource('/test-validator.txt').toURI())
     }
 
     def "Json eq"() {
 
         setup:
-        Condition parser = new Condition()
-        parser.setType("json")
-        parser.setCondition("=")
-        parser.setFind("error_rate")
-        parser.setValue("0.04")
-        parser.setFile("file")
-        parser.setName("name")
-        parser.setVerdict("pass")
+        Condition condition = new Condition()
+        condition.type="json"
+        condition.condition="="
+        condition.find="error_rate"
+        condition.value="0.04"
+        condition.file="file"
+        condition.name="name"
+        condition.verdict="pass"
 
-        when: validator.validateConditions(parser, jsonFile)
+        when: validator.validateConditions(condition, jsonFile)
         then: noExceptionThrown()
     }
 
     def "Json eq2"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("json")
-        parser.setCondition("==")
-        parser.setFind("error_rate")
-        parser.setValue("0.04")
+        def condition = new Condition()
+        condition.type="json"
+        condition.condition="=="
+        condition.find="error_rate"
+        condition.value="0.04"
 
-        when: validator.validateConditions(parser, jsonFile)
+        when: validator.validateConditions(condition, jsonFile)
         then: noExceptionThrown()
     }
 
     def "Json neq"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("json")
-        parser.setCondition("!=")
-        parser.setFind("error_rate")
-        parser.setValue("0.05")
+        def condition = new Condition()
+        condition.type="json"
+        condition.condition="!="
+        condition.find="error_rate"
+        condition.find="0.05"
 
-        when: validator.validateConditions(parser, jsonFile)
+        when: validator.validateConditions(condition, jsonFile)
         then: noExceptionThrown()
     }
 
     def "Json gt"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("json")
-        parser.setCondition(">")
-        parser.setFind("error_rate")
-        parser.setValue("0.03")
+        def condition = new Condition()
+        condition.type="json"
+        condition.condition=">"
+        condition.find="error_rate"
+        condition.value="0.03"
 
-        when: validator.validateConditions(parser, jsonFile)
+        when: validator.validateConditions(condition, jsonFile)
         then: noExceptionThrown()
 
     }
@@ -111,13 +121,13 @@ class ValidatorSpec extends Specification {
     def "Json get"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("json")
-        parser.setCondition(">=")
-        parser.setFind("error_rate")
-        parser.setValue("0.04")
+        def condition = new Condition()
+        condition.type="json"
+        condition.condition=">="
+        condition.find="error_rate"
+        condition.value="0.04"
 
-        when: validator.validateConditions(parser, jsonFile)
+        when: validator.validateConditions(condition, jsonFile)
         then: noExceptionThrown()
 
     }
@@ -125,80 +135,106 @@ class ValidatorSpec extends Specification {
     def "Json lt"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("json")
-        parser.setCondition("<")
-        parser.setFind("error_rate")
-        parser.setValue("0.05")
+        def condition = new Condition()
+        condition.type="json"
+        condition.condition="<"
+        condition.find="error_rate"
+        condition.value="0.05"
 
-        when: validator.validateConditions(parser, jsonFile)
+        when: validator.validateConditions(condition, jsonFile)
         then: noExceptionThrown()
     }
 
     def "Json let"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("json")
-        parser.setCondition("<=")
-        parser.setFind("error_rate")
-        parser.setValue("0.04")
+        def condition = new Condition()
+        condition.type="json"
+        condition.condition="<="
+        condition.find="error_rate"
+        condition.value="0.04"
 
-        when: validator.validateConditions(parser, jsonFile)
+        when: validator.validateConditions(condition, jsonFile)
         then: noExceptionThrown()
     }
 
     def "Json unknown condition"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("json")
-        parser.setCondition("<>")
-        parser.setFind("error_rate")
-        parser.setValue("0.04")
+        def condition = new Condition()
+        condition.type="json"
+        condition.condition="<>"
+        condition.find="error_rate"
+        condition.value="0.04"
 
-        when: validator.validateConditions(parser, jsonFile)
+        when: validator.validateConditions(condition, jsonFile)
         then:
         def ex = thrown(Exception.class)
-        ex.message == ERROR_UNKNOWN_OPTION
+        ex.message.contains(ERROR_UNKNOWN_OPTION)
 
     }
 
     def "Text present"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("txt")
-        parser.setFind("OK")
-        parser.setCondition("present")
+        def condition = new Condition()
+        condition.type="txt"
+        condition.find="OK"
+        condition.condition="present"
 
-        when: validator.validateConditions(parser, txtFile)
+        when: validator.validateConditions(condition, txtFile)
         then: noExceptionThrown()
     }
 
     def "Text not present"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("txt")
-        parser.setFind("KO")
-        parser.setCondition("not present")
+        def condition = new Condition()
+        condition.type="txt"
+        condition.find="KO"
+        condition.condition="not present"
 
-        when: validator.validateConditions(parser, txtFile)
+        when: validator.validateConditions(condition, txtFile)
         then: noExceptionThrown()
+    }
+
+    def "Text present failed"(){
+        setup:
+        def condition = new Condition()
+        condition.type="txt"
+        condition.find="KK"
+        condition.condition="present"
+
+        when: validator.validateConditions(condition, txtFile)
+        then:
+        def ex = thrown(Exception.class)
+        ex.message.contains(ERROR_STRING_NOT_PRESENT)
+    }
+
+    def "Text not present failed"(){
+        setup:
+        def condition = new Condition()
+        condition.type="txt"
+        condition.find="OK"
+        condition.condition="not present"
+
+        when: validator.validateConditions(condition, txtFile)
+        then:
+        def ex = thrown(Exception.class)
+        ex.message.contains(ERROR_STRING_PRESENT)
     }
 
     def "Text unknown condition"() {
 
         setup:
-        def parser = new Condition()
-        parser.setType("txt")
-        parser.setFind("KK")
-        parser.setCondition("present")
+        def condition = new Condition()
+        condition.type="txt"
+        condition.find="OK"
+        condition.condition="prese"
 
-        when: validator.validateConditions(parser, txtFile)
+        when: validator.validateConditions(condition, txtFile)
         then:
         def ex = thrown(Exception.class)
-        ex.message == ERROR_UNKNOWN_OPTION
+        ex.message.contains(ERROR_UNKNOWN_OPTION)
     }
 }

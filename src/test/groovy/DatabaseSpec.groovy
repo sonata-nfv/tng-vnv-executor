@@ -55,14 +55,14 @@ class DatabaseSpec extends Specification {
     def setupSpec() {
         testExecution = new TestExecution()
         testExecution.uuid = UUID.randomUUID().toString()
-        testExecution.state = TestExecution.TestState.STARTING
+        testExecution.setState(TestExecution.TestState.STARTING)
     }
 
     def "TestExecution inserted and found"() {
 
         when:
         testExecutionRepository.save(testExecution)
-        def aux = testExecutionRepository.findById(testExecution.uuid).get()
+        def aux = testExecutionRepository.findById(testExecution.getUuid()).get()
 
         then:
         noExceptionThrown()
