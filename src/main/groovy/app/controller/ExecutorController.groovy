@@ -38,6 +38,7 @@ import app.database.TestExecution
 import app.database.TestExecutionRepository
 import app.model.callback.Response
 import app.model.docker_compose.Service
+import app.model.resultsRepo.Result
 import app.model.test.Callback
 import app.model.test.Test
 import app.model.test.TestDescriptor
@@ -96,6 +97,12 @@ class ExecutorController {
 
     @Value('${CALLBACK_SERVER_PORT}')
     String CALLBACK_SERVER_PORT
+
+    @Value('${RESTULS_REPO_NAME}')
+    String RESTULS_REPO_NAME
+
+    @Value('${RESTULS_REPO_PORT}')
+    String RESTULS_REPO_PORT
 
     @RequestMapping(method = RequestMethod.POST,
             path = "/api/v1/test-executions",
@@ -407,33 +414,41 @@ class ExecutorController {
 
                 if (testExecution) {
                     testExecution.state = TestExecution.TestState.COMPLETED
+                    testExecution.lasModifiedDate = new Date()
                     testExecutionRepository.save(testExecution)
                 }
 
                 //Update Tests results in Tests Results Repository
-                //TODO
-                def resultsUuid = ""
+
+                def repoUrl = "http://${RESTULS_REPO_NAME}:${RESTULS_REPO_PORT}/trr/test-suite-results"
+
+                Result result = new Result()
+                result.createdAt = testExecution.getCreated()
+                result.descriptorVersion="${test.test.name}.${test.test.vendor}.${test.test.version}"
+                result.updatedAt = testExecution.getLasModifiedDate()
+                result.uuid = testExecution.uuid
+                result.version = "1"
+                postPayload(repoUrl, result)
 
                 //Callback
                 callback = test.getCallback(Callback.CallbackTypes.finish)
                 Response response = new Response()
                 response.setTestUuid(testId)
                 response.setStatus("COMPLETED")
-                response.setResultsUuid(resultsUuid)
-                sendCallback(callback.getPath(), response)
+                response.setResultsUuid(result.uuid)
+                def  callbackUrl = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}${callback.getPath()}"
+                postPayload(callbackUrl, response)
             }
         })
     }
 
-    private void sendCallback(String path, Response payload) {
+    private void postPayload(String url, Object payload) {
 
         RestTemplate restTemplate = new RestTemplate()
 
-        def url = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}${path}"
-
         try {
 
-            logger.info("Sending callback to ${url}")
+            logger.info("Sending payload to ${url}")
 
             URI uri = new URI(url)
 
@@ -442,7 +457,6 @@ class ExecutorController {
 
             HttpEntity<Response> request = new HttpEntity<>(payload, headers)
 
-            //ResponseEntity<String> result =
             restTemplate.postForEntity(uri, request, String.class)
 
         } catch (Exception e) {
