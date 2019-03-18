@@ -38,6 +38,7 @@ import app.database.TestExecution
 import app.database.TestExecutionRepository
 import app.model.callback.Response
 import app.model.docker_compose.Service
+import app.model.resultsRepo.PostTestSuiteResponse
 import app.model.resultsRepo.Result
 import app.model.test.Callback
 import app.model.test.Test
@@ -233,7 +234,7 @@ class ExecutorController {
                     response.setTest_uuid(testId)
                     response.setStatus("ERROR")
                     response.setMessage(message)
-                    postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
                     return
                 }
 
@@ -247,7 +248,7 @@ class ExecutorController {
                 Response response = new Response()
                 response.setTest_uuid(testId)
                 response.setStatus("RUNNING")
-                postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                postCallback("${callbackBaseUrl}${callback.getPath()}", response)
 
                 //Wait for completion
                 try {
@@ -275,7 +276,7 @@ class ExecutorController {
                     response.setTest_uuid(testId)
                     response.setStatus("ERROR")
                     response.setMessage(message)
-                    postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
                     return
                 }
 
@@ -324,7 +325,7 @@ class ExecutorController {
                     response.setTest_uuid(testId)
                     response.setStatus("ERROR")
                     response.setMessage(message)
-                    postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
                     return
                 }
 
@@ -359,7 +360,7 @@ class ExecutorController {
                 Response response = new Response()
                 response.setTest_uuid(testId)
                 response.setStatus("CANCELLED")
-                postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                postCallback("${callbackBaseUrl}${callback.getPath()}", response)
 
             }
         })
@@ -478,7 +479,7 @@ class ExecutorController {
                             try{
                                 result.ended_at=testExecution.lastModifiedDate
                                 result.status="ERROR"
-                                postPayload(repoUrl, result)
+                                postTestResult(repoUrl, result)
                             } catch (Exception ex){
                                 callback = test.getCallback(Callback.CallbackTypes.cancel)
                                 def message = "Error saving results in repo ${testId}-${service}: ${ex.toString()}"
@@ -487,7 +488,7 @@ class ExecutorController {
                                 response.setTest_uuid(testId)
                                 response.setStatus("ERROR")
                                 response.setMessage(message)
-                                postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                                postCallback("${callbackBaseUrl}${callback.getPath()}", response)
                             }
 
                             callback = test.getCallback(Callback.CallbackTypes.cancel)
@@ -497,7 +498,7 @@ class ExecutorController {
                             response.setTest_uuid(testId)
                             response.setStatus("ERROR")
                             response.setMessage(message)
-                            postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                            postCallback("${callbackBaseUrl}${callback.getPath()}", response)
                         }
                     }
                 }
@@ -512,10 +513,11 @@ class ExecutorController {
                 }
 
                 //Update Tests results in Tests Results Repository
+                def resultsUuid
                 try{
                     result.status="PASSED"
                     result.ended_at=testExecution.lastModifiedDate
-                    postPayload(repoUrl, result)
+                    resultsUuid = postTestResult(repoUrl, result)
                 } catch (Exception e){
                     callback = test.getCallback(Callback.CallbackTypes.cancel)
                     def message = "Error saving results in repo ${testId}-${service}: ${e.toString()}"
@@ -524,7 +526,7 @@ class ExecutorController {
                     response.setTest_uuid(testId)
                     response.setStatus("ERROR")
                     response.setMessage(message)
-                    postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
                     return
                 }
 
@@ -533,8 +535,8 @@ class ExecutorController {
                 Response response = new Response()
                 response.setTest_uuid(testId)
                 response.setStatus("COMPLETED")
-                response.setResults_uuid(testExecution.uuid)
-                postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                response.setResults_uuid(resultsUuid)
+                postCallback("${callbackBaseUrl}${callback.getPath()}", response)
 
                 //tests results repo
 
@@ -562,7 +564,7 @@ class ExecutorController {
         })
     }
 
-    private void postPayload(String url, Object payload) {
+    private void postCallback(String url, Object payload) {
 
         RestTemplate restTemplate = new RestTemplate()
 
@@ -577,7 +579,31 @@ class ExecutorController {
 
             HttpEntity<Response> request = new HttpEntity<>(payload, headers)
 
-            restTemplate.postForEntity(uri, request, String.class)
+            def response = restTemplate.postForEntity(uri, request, String.class)
+
+        } catch (Exception e) {
+            logger.error(e)
+        }
+    }
+
+    private String postTestResult(String url, Object payload) {
+
+        RestTemplate restTemplate = new RestTemplate()
+
+        try {
+
+            logger.info("Sending payload to ${url}")
+
+            URI uri = new URI(url)
+
+            HttpHeaders headers = new HttpHeaders()
+            headers.setContentType(MediaType.APPLICATION_JSON)
+
+            HttpEntity<Response> request = new HttpEntity<>(payload, headers)
+
+            ResponseEntity response = restTemplate.postForEntity(uri, request, PostTestSuiteResponse.class)
+
+            return response.getBody().getUuid()
 
         } catch (Exception e) {
             logger.error(e)
