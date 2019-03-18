@@ -36,8 +36,8 @@ package app.model.callback
 
 class Response {
 
-    String testUuid
+    String test_uuid
     String status
     String message
-    String resultsUuid
+    String results_uuid
 }

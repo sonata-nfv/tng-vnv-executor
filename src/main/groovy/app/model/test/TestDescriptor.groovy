@@ -45,6 +45,10 @@ class TestDescriptor {
     @ApiModelProperty(required = false, hidden = true)
     String uuid
 
+    String name
+    String vendor
+    String version
+
     List<TestDescriptorPhase> phases = new ArrayList<>()
 
     TestDescriptorPhase getPhase(TestDescriptorPhases type) {

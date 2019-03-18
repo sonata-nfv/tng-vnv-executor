@@ -33,7 +33,7 @@
 
 FROM openjdk:11-jdk-slim
 
-RUN apt update && apt install -y curl
+RUN apt update && apt install -y curl dos2unix
 
 RUN curl -L https://github.com/docker/compose/releases/download/1.23.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose && \
     chmod +x /usr/local/bin/docker-compose

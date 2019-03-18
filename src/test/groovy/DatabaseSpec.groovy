@@ -67,7 +67,7 @@ class DatabaseSpec extends Specification {
         then:
         noExceptionThrown()
         aux.created != null
-        aux.lasModifiedDate != null
+        aux.lastModifiedDate != null
         aux.state == TestExecution.TestState.STARTING
 
     }
@@ -83,7 +83,7 @@ class DatabaseSpec extends Specification {
         noExceptionThrown()
         aux.state == TestExecution.TestState.CANCELLED
         aux.created != null
-        aux.lasModifiedDate != null
+        aux.lastModifiedDate != null
     }
 
     def "TestExecution deleted"() {
