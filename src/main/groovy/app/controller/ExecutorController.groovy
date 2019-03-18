@@ -55,7 +55,6 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
-import org.apache.http.entity.ContentType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
@@ -98,11 +97,12 @@ class ExecutorController {
     @Value('${CALLBACK_SERVER_PORT}')
     String CALLBACK_SERVER_PORT
 
-    @Value('${RESTULS_REPO_NAME}')
-    String RESTULS_REPO_NAME
+    @Value('${RESULTS_REPO_NAME}')
+    String RESULTS_REPO_NAME
 
-    @Value('${RESTULS_REPO_PORT}')
-    String RESTULS_REPO_PORT
+    @Value('${RESULTS_REPO_PORT}')
+    String RESULTS_REPO_PORT
+
 
     @RequestMapping(method = RequestMethod.POST,
             path = "/api/v1/test-executions",
@@ -116,7 +116,6 @@ class ExecutorController {
             @ApiResponse(code = 500, message = "There was a problem during the test building")
     ])
     ResponseEntity<String> testExecutionRequest(@RequestBody Test test) {
-
 
         //get TD
         TestDescriptor testDescriptor = test.getTest()
@@ -206,6 +205,7 @@ class ExecutorController {
             void run() {
 
                 def callback
+                def callbackBaseUrl = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}"
                 Process process
                 def testExecution = testExecutionRepository.findById(testId).orElse(null) as TestExecution
 
@@ -215,7 +215,7 @@ class ExecutorController {
                     process = Runtime.getRuntime().exec("docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} up -d")
                     logger.info("Executing: docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} up -d")
                     process.waitForProcessOutput()
-                    logger.info("> ${process}")
+                    //logger.info("> ${process}")
                     if (!process.toString().contains("exitValue=0")) {
                         throw new Exception("FAILED")
                     }
@@ -230,10 +230,10 @@ class ExecutorController {
                     def message = "Error executing docker-compose up command: ${e.toString()}"
                     logger.error(message)
                     Response response = new Response()
-                    response.setTestUuid(testId)
+                    response.setTest_uuid(testId)
                     response.setStatus("ERROR")
                     response.setMessage(message)
-                    sendCallback(callback.getPath(), response)
+                    postPayload("${callbackBaseUrl}${callback.getPath()}", response)
                     return
                 }
 
@@ -245,9 +245,9 @@ class ExecutorController {
 
                 callback = test.getCallback(Callback.CallbackTypes.running)
                 Response response = new Response()
-                response.setTestUuid(testId)
+                response.setTest_uuid(testId)
                 response.setStatus("RUNNING")
-                sendCallback(callback.getPath(), response)
+                postPayload("${callbackBaseUrl}${callback.getPath()}", response)
 
                 //Wait for completion
                 try {
@@ -256,7 +256,7 @@ class ExecutorController {
                         logger.info("sh /executor/bash_scripts/wait_for.sh \"${service.value.getName()}\" \"${testId}\" \"/executor/compose_files/${testId}-docker-compose.yml\"")
                         process = Runtime.getRuntime().exec("sh /executor/bash_scripts/wait_for.sh ${service.value.getName()} ${testId} /executor/compose_files/${testId}-docker-compose.yml")
                         process.waitFor()
-                        logger.info("> ${process}")
+                        //logger.info("> ${process}")
                         if (!process.toString().contains("exitValue=0")) {
                             throw new Exception("FAILED")
                         }
@@ -272,10 +272,10 @@ class ExecutorController {
                     def message = "Error waiting for test completion: ${e.toString()}"
                     logger.error(message)
                     response = new Response()
-                    response.setTestUuid(testId)
+                    response.setTest_uuid(testId)
                     response.setStatus("ERROR")
                     response.setMessage(message)
-                    sendCallback(callback.getPath(), response)
+                    postPayload("${callbackBaseUrl}${callback.getPath()}", response)
                     return
                 }
 
@@ -306,13 +306,14 @@ class ExecutorController {
 
                 def callback = callbacks.getCallback(Callback.CallbackTypes.cancel)
                 def testExecutionOpt = testExecutionRepository.findById(testId.toString())
+                def callbackBaseUrl = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}"
 
                 //docker-compose down
                 try {
                     def process = Runtime.getRuntime().exec("docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v")
                     logger.info("Executing: docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v")
                     process.waitForProcessOutput()
-                    logger.info("> ${process}")
+                    //logger.info("> ${process}")
                     if (!process.toString().contains("exitValue=0")) {
                         throw new Exception("FAILED")
                     }
@@ -320,10 +321,10 @@ class ExecutorController {
                     def message = "Error executing docker-compose down command: ${e.toString()}"
                     logger.error(message)
                     Response response = new Response()
-                    response.setTestUuid(testId)
+                    response.setTest_uuid(testId)
                     response.setStatus("ERROR")
                     response.setMessage(message)
-                    sendCallback(callback.getPath(), response)
+                    postPayload("${callbackBaseUrl}${callback.getPath()}", response)
                     return
                 }
 
@@ -332,7 +333,15 @@ class ExecutorController {
                     def process = Runtime.getRuntime().exec("rm -rf /executor/tests/${testId}")
                     logger.info("Executing: rm -rf /executor/tests/${testId}")
                     process.waitForProcessOutput()
-                    logger.info("> ${process}")
+                    //logger.info("> ${process}")
+                    if (!process.toString().contains("exitValue=0")) {
+                        throw new Exception("FAILED")
+                    }
+
+                    process = Runtime.getRuntime().exec("rm -rf /executor/compose_files/${testId}-docker-compose.yml")
+                    logger.info("Executing: rm -rf /executor/compose_files/${testId}-docker-compose.yml")
+                    process.waitForProcessOutput()
+                    //logger.info("> ${process}")
                     if (!process.toString().contains("exitValue=0")) {
                         throw new Exception("FAILED")
                     }
@@ -348,9 +357,9 @@ class ExecutorController {
 
                 //Callback
                 Response response = new Response()
-                response.setTestUuid(testId)
+                response.setTest_uuid(testId)
                 response.setStatus("CANCELLED")
-                sendCallback(callback.getPath(), response)
+                postPayload("${callbackBaseUrl}${callback.getPath()}", response)
 
             }
         })
@@ -361,15 +370,79 @@ class ExecutorController {
             @Override
             void run() {
 
-                logger.info("-- Starting validation")
                 def callback
                 def service
                 def resultsFolder
 
+                def repoUrl = "http://${RESULTS_REPO_NAME}:${RESULTS_REPO_PORT}/api/v1/trr/test-suite-results"
+                def callbackBaseUrl = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}"
                 def testExecution = testExecutionRepository.findById(testId).orElse(null) as TestExecution
 
+                //generating result with all files
+
+                Result result = new Result()
+                result.created_at = testExecution.created
+                result.status = "EXECUTED"
+                //result.instance_uuid=
+                //result.package_id=
+                //result.service_uuid=
+                //result.test_plan_id=
+                result.test_uuid = testId
+                result.updated_at = new Date()
+                //result.uuid=
+
+                def exercisePhaseSteps = (List<TestDescriptorExercisePhaseStep>)test.getTest().getPhase(TestDescriptorPhases.EXERCISE_PHASE).getSteps()
+
+                resultsFolder = new File("/executor/tests/${testId}/output")
+
+                List<String> results
+                List<String> details
+                List<Map<String, Object>> listOfMapResults = new ArrayList<>()
+                List<Map<String, Object>> listOfMapDetails = new ArrayList<>()
+
+                for (probe in resultsFolder.listFiles()){
+                    //logger.info("<<<<<< Probe: ${probe.name}")
+                    results = new ArrayList<>()
+                    details = new ArrayList<>()
+                    for (instance in probe.listFiles()){
+                        //logger.info("-- instance: ${instance.name}")
+                        for (file in instance.listFiles()){
+                            for (step in exercisePhaseSteps){
+                                if (step.run == probe.name){
+                                    // results file
+                                    //logger.info("detected file: ${file.name}")
+                                    def resultsFileName
+                                    for (output in step.getOutput()){
+                                        resultsFileName = output.get("results")
+                                        //logger.info("the results file name is: ${resultsFileName}")
+                                        break
+                                    }
+                                    if (file.name == resultsFileName){
+                                        //logger.info("adding ${file.name} to results")
+                                        results.add(file.getText())
+                                    } else { //details file
+                                        //logger.info("adding ${file.name} to details")
+                                        details.add(file.getText())
+                                    }
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    Map<String, Object> map = new HashMap<String, Object>()
+                    map.put(probe.name, results)
+                    listOfMapResults.add(map)
+                    map = new HashMap<String, Object>()
+                    map.put(probe.name, details)
+                    listOfMapDetails.add(map)
+                }
+                result.details = listOfMapDetails
+                result.results = listOfMapResults
+
+                logger.info("-- Starting validation")
+
                 for (step in (List<TestDescriptorVerificationPhaseStep>) test.getTest().getPhase(TestDescriptorPhases.VERIFICATION_PHASE).getSteps()) {
-                    for (exerciseStep in (List<TestDescriptorExercisePhaseStep>) test.getTest().getPhase(TestDescriptorPhases.EXERCISE_PHASE).getSteps()) {
+                    for (exerciseStep in exercisePhaseSteps) {
                         if (exerciseStep.getName().equals(step.getStep())) {
                             service = exerciseStep.getRun()
                             break
@@ -382,62 +455,109 @@ class ExecutorController {
                         try {
                             resultsFolder = new File("/executor/tests/${testId}/results/${service}")
 
-                            for (file in resultsFolder.listFiles()) {
-                                if (file.getName().contains(condition.getFile())) {
-                                    validator.validateConditions(condition, file)
-                                }
-                            }
+                            for (instance in resultsFolder.listFiles()){
 
+                                for (file in instance.listFiles()) {
+                                    if (file.getName() == (condition.getFile())) {
+                                        validator.validateConditions(condition, file)
+                                    }
+                                }
+
+                            }
                             logger.info("${testId}-${service}-${condition.getName()} = ${condition.getVerdict()}")
 
                         } catch (Exception e) {
 
                             if (testExecution) {
                                 testExecution.state = TestExecution.TestState.ERROR
+                                testExecution.lastModifiedDate = new Date()
                                 testExecutionRepository.save(testExecution)
+                            }
+
+                            //Saving result in repo as ERROR
+                            try{
+                                result.ended_at=testExecution.lastModifiedDate
+                                result.status="ERROR"
+                                postPayload(repoUrl, result)
+                            } catch (Exception ex){
+                                callback = test.getCallback(Callback.CallbackTypes.cancel)
+                                def message = "Error saving results in repo ${testId}-${service}: ${ex.toString()}"
+                                logger.error(message)
+                                Response response = new Response()
+                                response.setTest_uuid(testId)
+                                response.setStatus("ERROR")
+                                response.setMessage(message)
+                                postPayload("${callbackBaseUrl}${callback.getPath()}", response)
                             }
 
                             callback = test.getCallback(Callback.CallbackTypes.cancel)
                             def message = "Error validating ${testId}-${service}: ${e.toString()}"
                             logger.error(message)
                             Response response = new Response()
-                            response.setTestUuid(testId)
+                            response.setTest_uuid(testId)
                             response.setStatus("ERROR")
                             response.setMessage(message)
-                            sendCallback(callback.getPath(), response)
+                            postPayload("${callbackBaseUrl}${callback.getPath()}", response)
                         }
                     }
                 }
                 logger.info("validation FINISHED")
 
-                //Update Database with status completed/error
+                //Update Database with status completed
 
                 if (testExecution) {
                     testExecution.state = TestExecution.TestState.COMPLETED
-                    testExecution.lasModifiedDate = new Date()
+                    testExecution.lastModifiedDate = new Date()
                     testExecutionRepository.save(testExecution)
                 }
 
                 //Update Tests results in Tests Results Repository
-
-                def repoUrl = "http://${RESTULS_REPO_NAME}:${RESTULS_REPO_PORT}/trr/test-suite-results"
-
-                Result result = new Result()
-                result.createdAt = testExecution.getCreated()
-                result.descriptorVersion="${test.test.name}.${test.test.vendor}.${test.test.version}"
-                result.updatedAt = testExecution.getLasModifiedDate()
-                result.uuid = testExecution.uuid
-                result.version = "1"
-                postPayload(repoUrl, result)
+                try{
+                    result.status="PASSED"
+                    result.ended_at=testExecution.lastModifiedDate
+                    postPayload(repoUrl, result)
+                } catch (Exception e){
+                    callback = test.getCallback(Callback.CallbackTypes.cancel)
+                    def message = "Error saving results in repo ${testId}-${service}: ${e.toString()}"
+                    logger.error(message)
+                    Response response = new Response()
+                    response.setTest_uuid(testId)
+                    response.setStatus("ERROR")
+                    response.setMessage(message)
+                    postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+                    return
+                }
 
                 //Callback
                 callback = test.getCallback(Callback.CallbackTypes.finish)
                 Response response = new Response()
-                response.setTestUuid(testId)
+                response.setTest_uuid(testId)
                 response.setStatus("COMPLETED")
-                response.setResultsUuid(result.uuid)
-                def  callbackUrl = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}${callback.getPath()}"
-                postPayload(callbackUrl, response)
+                response.setResults_uuid(testExecution.uuid)
+                postPayload("${callbackBaseUrl}${callback.getPath()}", response)
+
+                //tests results repo
+
+                //delete folders
+                try {
+                    def process = Runtime.getRuntime().exec("rm -rf /executor/tests/${testId}")
+                    logger.info("Executing: rm -rf /executor/tests/${testId}")
+                    process.waitForProcessOutput()
+                    //logger.info("> ${process}")
+                    if (!process.toString().contains("exitValue=0")) {
+                        throw new Exception("FAILED")
+                    }
+
+                    process = Runtime.getRuntime().exec("rm -rf /executor/compose_files/${testId}-docker-compose.yml")
+                    logger.info("Executing: rm -rf /executor/compose_files/${testId}-docker-compose.yml")
+                    process.waitForProcessOutput()
+                    //logger.info("> ${process}")
+                    if (!process.toString().contains("exitValue=0")) {
+                        throw new Exception("FAILED")
+                    }
+                } catch (Exception e) {
+                    logger.error("Error deleting compose file")
+                }
             }
         })
     }
@@ -463,4 +583,5 @@ class ExecutorController {
             logger.error(e)
         }
     }
+
 }

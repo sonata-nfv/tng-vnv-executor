@@ -104,6 +104,12 @@ class FileUtils {
             if (!process.toString().contains("exitValue=0")) {
                logger.error("Error moving wait_for.sh script")
             }
+            process = Runtime.getRuntime().exec("dos2unix /executor/bash_scripts/wait_for.sh")
+            logger.info("Executing: dos2unix /executor/bash_scripts/wait_for.sh")
+            process.waitForProcessOutput()
+            if (!process.toString().contains("exitValue=0")) {
+                logger.error("Error executing dos2unix against wait_for.sh script")
+            }
         } else {
             logger.info("/wait_for.sh is already copied to ${WAIT_FOR_SCRIPT}")
         }

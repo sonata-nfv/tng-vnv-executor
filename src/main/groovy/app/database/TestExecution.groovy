@@ -64,7 +64,7 @@ class TestExecution implements Serializable {
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "lastModified")
-    Date lasModifiedDate
+    Date lastModifiedDate
 
 
     TestExecution() {}
