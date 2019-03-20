@@ -68,6 +68,11 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 
+import java.text.Format
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneOffset
+
 @RestController
 @Api
 @Slf4j(value = "logger")
@@ -379,10 +384,13 @@ class ExecutorController {
                 def callbackBaseUrl = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}"
                 def testExecution = testExecutionRepository.findById(testId).orElse(null) as TestExecution
 
+                Instant instant
+
                 //generating result with all files
 
                 Result result = new Result()
-                result.started_at = testExecution.created
+                instant = testExecution.created.toInstant()
+                result.started_at = instant.atOffset(ZoneOffset.UTC).toString()
                 result.status = "EXECUTED"
                 //result.instance_uuid=
                 //result.package_id=
@@ -477,7 +485,8 @@ class ExecutorController {
 
                             //Saving result in repo as ERROR
                             try{
-                                result.ended_at=testExecution.lastModifiedDate
+                                instant = testExecution.lastModifiedDate.toInstant()
+                                result.ended_at=instant.atOffset(ZoneOffset.UTC).toString()
                                 result.status="ERROR"
                                 postTestResult(repoUrl, result)
                             } catch (Exception ex){
@@ -516,7 +525,8 @@ class ExecutorController {
                 def resultsUuid
                 try{
                     result.status="PASSED"
-                    result.ended_at=testExecution.lastModifiedDate
+                    instant = testExecution.lastModifiedDate.toInstant()
+                    result.ended_at=instant.atOffset(ZoneOffset.UTC).toString()
                     resultsUuid = postTestResult(repoUrl, result)
                 } catch (Exception e){
                     callback = test.getCallback(Callback.CallbackTypes.cancel)
