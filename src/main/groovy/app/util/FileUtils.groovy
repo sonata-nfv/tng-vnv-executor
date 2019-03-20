@@ -124,7 +124,7 @@ class FileUtils {
         }
 
         for(service in services) {
-            def resultsDir = new File(String.format(RESULTS_PATH, testId, service.name))
+            def resultsDir = new File("${String.format(RESULTS_PATH, testId)}/${service.name}" )
             if(resultsDir.exists()) {
                 throw new FileAlreadyExistsException("Directory ${resultsDir.getAbsolutePath()} already exists")
             }
