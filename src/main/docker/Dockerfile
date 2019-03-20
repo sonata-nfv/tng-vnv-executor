@@ -40,6 +40,8 @@ RUN curl -L https://github.com/docker/compose/releases/download/1.23.2/docker-co
 
 RUN mkdir /executor
 
+ENV CALLBACKS="enabled"
+
 ADD wait_for.sh /wait_for.sh
 ADD tng-vnv-executor.jar app.jar
 ADD application.properties application.properties

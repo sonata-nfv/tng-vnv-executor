@@ -109,6 +109,9 @@ class ExecutorController {
     @Value('${RESULTS_REPO_PORT}')
     String RESULTS_REPO_PORT
 
+    @Value('${CALLBACKS}')
+    String CALLBACKS
+
 
     @RequestMapping(method = RequestMethod.POST,
             path = "/api/v1/test-executions",
@@ -232,14 +235,16 @@ class ExecutorController {
                         testExecutionRepository.save(testExecution)
                     }
 
-                    callback = test.getCallback(Callback.CallbackTypes.cancel)
-                    def message = "Error executing docker-compose up command: ${e.toString()}"
-                    logger.error(message)
-                    Response response = new Response()
-                    response.setTest_uuid(testId)
-                    response.setStatus("ERROR")
-                    response.setMessage(message)
-                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    if (CALLBACKS.toUpperCase()=="ENABLED"){
+                        callback = test.getCallback(Callback.CallbackTypes.cancel)
+                        def message = "Error executing docker-compose up command: ${e.toString()}"
+                        logger.error(message)
+                        Response response = new Response()
+                        response.setTest_uuid(testId)
+                        response.setStatus("ERROR")
+                        response.setMessage(message)
+                        postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    }
                     return
                 }
 
@@ -249,11 +254,13 @@ class ExecutorController {
                     testExecutionRepository.save(testExecution)
                 }
 
-                callback = test.getCallback(Callback.CallbackTypes.running)
-                Response response = new Response()
-                response.setTest_uuid(testId)
-                response.setStatus("RUNNING")
-                postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                if (CALLBACKS.toUpperCase()=="ENABLED") {
+                    callback = test.getCallback(Callback.CallbackTypes.running)
+                    Response response = new Response()
+                    response.setTest_uuid(testId)
+                    response.setStatus("RUNNING")
+                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                }
 
                 //Wait for completion
                 try {
@@ -274,14 +281,16 @@ class ExecutorController {
                         testExecutionRepository.save(testExecution)
                     }
 
-                    callback = test.getCallback(Callback.CallbackTypes.cancel)
-                    def message = "Error waiting for test completion: ${e.toString()}"
-                    logger.error(message)
-                    response = new Response()
-                    response.setTest_uuid(testId)
-                    response.setStatus("ERROR")
-                    response.setMessage(message)
-                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    if (CALLBACKS.toUpperCase()=="ENABLED") {
+                        callback = test.getCallback(Callback.CallbackTypes.cancel)
+                        def message = "Error waiting for test completion: ${e.toString()}"
+                        logger.error(message)
+                        response = new Response()
+                        response.setTest_uuid(testId)
+                        response.setStatus("ERROR")
+                        response.setMessage(message)
+                        postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    }
                     return
                 }
 
@@ -324,13 +333,15 @@ class ExecutorController {
                         throw new Exception("FAILED")
                     }
                 } catch (Exception e) {
-                    def message = "Error executing docker-compose down command: ${e.toString()}"
-                    logger.error(message)
-                    Response response = new Response()
-                    response.setTest_uuid(testId)
-                    response.setStatus("ERROR")
-                    response.setMessage(message)
-                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    if (CALLBACKS.toUpperCase()=="ENABLED") {
+                        def message = "Error executing docker-compose down command: ${e.toString()}"
+                        logger.error(message)
+                        Response response = new Response()
+                        response.setTest_uuid(testId)
+                        response.setStatus("ERROR")
+                        response.setMessage(message)
+                        postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    }
                     return
                 }
 
@@ -362,11 +373,12 @@ class ExecutorController {
 
 
                 //Callback
-                Response response = new Response()
-                response.setTest_uuid(testId)
-                response.setStatus("CANCELLED")
-                postCallback("${callbackBaseUrl}${callback.getPath()}", response)
-
+                if (CALLBACKS.toUpperCase()=="ENABLED") {
+                    Response response = new Response()
+                    response.setTest_uuid(testId)
+                    response.setStatus("CANCELLED")
+                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                }
             }
         })
     }
@@ -490,8 +502,21 @@ class ExecutorController {
                                 result.status="ERROR"
                                 postTestResult(repoUrl, result)
                             } catch (Exception ex){
+                                if (CALLBACKS.toUpperCase()=="ENABLED") {
+                                    callback = test.getCallback(Callback.CallbackTypes.cancel)
+                                    def message = "Error saving results in repo ${testId}-${service}: ${ex.toString()}"
+                                    logger.error(message)
+                                    Response response = new Response()
+                                    response.setTest_uuid(testId)
+                                    response.setStatus("ERROR")
+                                    response.setMessage(message)
+                                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                                }
+                            }
+
+                            if (CALLBACKS.toUpperCase()=="ENABLED") {
                                 callback = test.getCallback(Callback.CallbackTypes.cancel)
-                                def message = "Error saving results in repo ${testId}-${service}: ${ex.toString()}"
+                                def message = "Error validating ${testId}-${service}: ${e.toString()}"
                                 logger.error(message)
                                 Response response = new Response()
                                 response.setTest_uuid(testId)
@@ -499,15 +524,6 @@ class ExecutorController {
                                 response.setMessage(message)
                                 postCallback("${callbackBaseUrl}${callback.getPath()}", response)
                             }
-
-                            callback = test.getCallback(Callback.CallbackTypes.cancel)
-                            def message = "Error validating ${testId}-${service}: ${e.toString()}"
-                            logger.error(message)
-                            Response response = new Response()
-                            response.setTest_uuid(testId)
-                            response.setStatus("ERROR")
-                            response.setMessage(message)
-                            postCallback("${callbackBaseUrl}${callback.getPath()}", response)
                         }
                     }
                 }
@@ -529,24 +545,28 @@ class ExecutorController {
                     result.ended_at=instant.atOffset(ZoneOffset.UTC).toString()
                     resultsUuid = postTestResult(repoUrl, result)
                 } catch (Exception e){
-                    callback = test.getCallback(Callback.CallbackTypes.cancel)
-                    def message = "Error saving results in repo ${testId}-${service}: ${e.toString()}"
-                    logger.error(message)
-                    Response response = new Response()
-                    response.setTest_uuid(testId)
-                    response.setStatus("ERROR")
-                    response.setMessage(message)
-                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
-                    return
+                    if (CALLBACKS.toUpperCase()=="ENABLED") {
+                        callback = test.getCallback(Callback.CallbackTypes.cancel)
+                        def message = "Error saving results in repo ${testId}-${service}: ${e.toString()}"
+                        logger.error(message)
+                        Response response = new Response()
+                        response.setTest_uuid(testId)
+                        response.setStatus("ERROR")
+                        response.setMessage(message)
+                        postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                        return
+                    }
                 }
 
                 //Callback
-                callback = test.getCallback(Callback.CallbackTypes.finish)
-                Response response = new Response()
-                response.setTest_uuid(testId)
-                response.setStatus("COMPLETED")
-                response.setResults_uuid(resultsUuid)
-                postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                if (CALLBACKS.toUpperCase()=="ENABLED") {
+                    callback = test.getCallback(Callback.CallbackTypes.finish)
+                    Response response = new Response()
+                    response.setTest_uuid(testId)
+                    response.setStatus("COMPLETED")
+                    response.setResults_uuid(resultsUuid)
+                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                }
 
                 //tests results repo
 
@@ -580,7 +600,7 @@ class ExecutorController {
 
         try {
 
-            logger.info("Sending payload to ${url}")
+            logger.info("Callbacks ${CALLBACKS}. Sending callback to ${url}")
 
             URI uri = new URI(url)
 
@@ -602,7 +622,7 @@ class ExecutorController {
 
         try {
 
-            logger.info("Sending payload to ${url}")
+            logger.info("Sending results to ${url}")
 
             URI uri = new URI(url)
 
