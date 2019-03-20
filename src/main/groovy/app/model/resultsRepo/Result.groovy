@@ -36,8 +36,8 @@ package app.model.resultsRepo
 
 class Result {
 
-    Date started_at
-    Date ended_at
+    String started_at
+    String ended_at
     List<Map<String, Object>> details
     List<Map<String, Object>> results
     String instance_uuid
