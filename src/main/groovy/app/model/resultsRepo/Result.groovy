@@ -36,7 +36,7 @@ package app.model.resultsRepo
 
 class Result {
 
-    Date created_at
+    Date started_at
     Date ended_at
     List<Map<String, Object>> details
     List<Map<String, Object>> results

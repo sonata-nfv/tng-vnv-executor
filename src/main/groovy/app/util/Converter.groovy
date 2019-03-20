@@ -242,7 +242,8 @@ class Converter {
             service.volumes.add(String.format(VOLUME_COMPOSE_FILE, testDescriptor.uuid))
             service.volumes.add(String.format(VOLUME_DOCKER_SOCK))
             service.volumes.add(String.format(VOLUME_DOCKER))
-            service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid, service.name))
+            //service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid, service.name))
+            service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid))
             service.volumes.add(String.format(VOLUME_DOCKER_COMPOSE_BIN))
 
             if (waitForCmd.size() != 0) {

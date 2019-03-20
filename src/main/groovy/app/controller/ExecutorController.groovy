@@ -382,7 +382,7 @@ class ExecutorController {
                 //generating result with all files
 
                 Result result = new Result()
-                result.created_at = testExecution.created
+                result.started_at = testExecution.created
                 result.status = "EXECUTED"
                 //result.instance_uuid=
                 //result.package_id=
