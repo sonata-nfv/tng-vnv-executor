@@ -43,6 +43,9 @@ RUN mkdir /executor
 ENV CALLBACKS="enabled"
 
 ADD wait_for.sh /wait_for.sh
+
+RUN chmod +x /wait_for.sh
+
 ADD tng-vnv-executor.jar app.jar
 ADD application.properties application.properties
 
