@@ -9,10 +9,10 @@ docker_container_name=$project_name"_"$service_name
 echo Checking $docker_container_name containers status
 
 # getting number of instances
-instances="$(/usr/local/bin/docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${docker_container_name}| wc -l)"
+instances="$(docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${docker_container_name}| wc -l)"
 i=0
 
-echo "/usr/local/bin/docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${docker_container_name}| wc -l"
+echo "docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${docker_container_name}| wc -l"
 echo Instances=$instances
 
 while [ $i -lt $instances ]
@@ -24,8 +24,8 @@ do
 	do
 		echo Checking $container_name
 
-        echo "/usr/local/bin/docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${container_name}"
-		result="$(/usr/local/bin/docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${container_name})"
+        echo "docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${container_name}"
+		result="$(docker-compose -f ${docker_compose_file} -p ${project_name} ps | grep ${container_name})"
 		exit_occurrences="$(echo $result | grep -o Exit | wc -l)"
                 echo "exit_occurrences=$exit_occurrences"
 
@@ -37,6 +37,10 @@ do
 			then
 				exitTrue=true
 				i=$((i+1))
+			fi
+			if [ "$exit_code" -eq 1 ]
+			then
+			    exit 1
 			fi
 		fi
 	done
