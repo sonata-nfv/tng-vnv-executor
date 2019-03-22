@@ -244,7 +244,7 @@ class Converter {
             service.volumes.add(String.format(VOLUME_DOCKER))
             //service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid, service.name))
             service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid))
-            service.volumes.add(String.format(VOLUME_DOCKER_COMPOSE_BIN))
+            //service.volumes.add(String.format(VOLUME_DOCKER_COMPOSE_BIN))
 
             if (waitForCmd.size() != 0) {
                 service.volumes.add("${WAIT_FOR_SCRIPT}:${WAIT_FOR_SCRIPT}".toString())
