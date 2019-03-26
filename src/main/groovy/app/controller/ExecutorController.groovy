@@ -392,7 +392,7 @@ class ExecutorController {
                 def service
                 def resultsFolder
 
-                def repoUrl = "http://${RESULTS_REPO_NAME}:${RESULTS_REPO_PORT}/api/v1/trr/test-suite-results"
+                def repoUrl = "http://${RESULTS_REPO_NAME}:${RESULTS_REPO_PORT}/trr/test-suite-results"
                 def callbackBaseUrl = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}"
                 def testExecution = testExecutionRepository.findById(testId).orElse(null) as TestExecution
 
