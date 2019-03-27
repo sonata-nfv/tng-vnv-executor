@@ -38,9 +38,9 @@ do
 				exitTrue=true
 				i=$((i+1))
 			fi
-			if [ "$exit_code" -eq 1 ]
+			if [ "$exit_code" -ne 0 ]
 			then
-			    exit 1
+			    exit "$exit_code"
 			fi
 		fi
 	done
