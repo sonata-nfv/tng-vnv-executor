@@ -278,6 +278,8 @@ class ExecutorController {
                     }
                 } catch (Exception e) {
 
+                    logger.info("Probe FAILED: ${process.toString()}")
+
                     if (testExecution) {
                         testExecution.state = TestExecution.TestState.ERROR
                         testExecutionRepository.save(testExecution)
