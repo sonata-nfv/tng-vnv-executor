@@ -51,6 +51,8 @@ import app.util.FileUtils
 import app.util.ResponseUtils
 import app.util.Validator
 import app.model.docker_compose.DockerCompose
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.ObjectWriter
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -627,7 +629,10 @@ class ExecutorController {
 
         try {
 
-            logger.info("Sending results to ${url}")
+            logger.info("Sending results to ${url}:")
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = ow.writeValueAsString(payload);
+            logger.info(json)
 
             URI uri = new URI(url)
 
