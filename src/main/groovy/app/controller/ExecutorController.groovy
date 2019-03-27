@@ -220,6 +220,8 @@ class ExecutorController {
 
                 //Execute docker-compose up command
 
+                logger.info("Callbacks to Curator are ${CALLBACKS}")
+
                 try {
                     process = Runtime.getRuntime().exec("docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} up -d")
                     logger.info("Executing: docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} up -d")
@@ -285,6 +287,7 @@ class ExecutorController {
                         callback = test.getCallback(Callback.CallbackTypes.cancel)
                         def message = "Error waiting for test completion: ${e.toString()}"
                         logger.error(message)
+                        Response response = new Response()
                         response = new Response()
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
