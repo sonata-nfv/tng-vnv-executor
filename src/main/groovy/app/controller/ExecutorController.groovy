@@ -271,7 +271,7 @@ class ExecutorController {
                         logger.info("sh /executor/bash_scripts/wait_for.sh \"${service.value.getName()}\" \"${testId}\" \"/executor/compose_files/${testId}-docker-compose.yml\"")
                         process = Runtime.getRuntime().exec("sh /executor/bash_scripts/wait_for.sh ${service.value.getName()} ${testId} /executor/compose_files/${testId}-docker-compose.yml")
                         process.waitFor()
-                        //logger.info("> ${process}")
+                        logger.info("> ${process}")
                         if (!process.toString().contains("exitValue=0")) {
                             throw new Exception("FAILED")
                         }
