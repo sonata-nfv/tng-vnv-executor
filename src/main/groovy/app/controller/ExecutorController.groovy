@@ -132,10 +132,11 @@ class ExecutorController {
         TestDescriptor testDescriptor = test.getTest()
 
         // ID is generated, never will already exist in DB
-        testDescriptor.uuid = UUID.randomUUID().toString()
-        while (testExecutionRepository.findById(testDescriptor.uuid).isPresent()) {
-            testDescriptor.uuid = UUID.randomUUID().toString()
-        }
+        //testDescriptor.uuid = UUID.randomUUID().toString()
+        //while (testExecutionRepository.findById(testDescriptor.uuid).isPresent()) {
+        //    testDescriptor.uuid = UUID.randomUUID().toString()
+        //}
+        testDescriptor.uuid = testDescriptor.getTest_descriptor_uuid()
 
         def dockerCompose
         try {
@@ -411,13 +412,11 @@ class ExecutorController {
                 instant = testExecution.created.toInstant()
                 result.started_at = instant.atOffset(ZoneOffset.UTC).toString()
                 result.status = "EXECUTED"
-                //result.instance_uuid=
-                //result.package_id=
-                //result.service_uuid=
-                //result.test_plan_id=
-                result.test_uuid = testId
+                result.instance_uuid=test.getTest().getService_instance_uuid()
+                result.package_id=test.getTest().getPackage_descriptor_uuid()
+                result.service_uuid=test.getTest().getNetwork_service_descriptor_uuid()
                 result.updated_at = new Date()
-                //result.uuid=
+                result.uuid= testId
 
                 def exercisePhaseSteps = (List<TestDescriptorExercisePhaseStep>)test.getTest().getPhase(TestDescriptorPhases.EXERCISE_PHASE).getSteps()
 

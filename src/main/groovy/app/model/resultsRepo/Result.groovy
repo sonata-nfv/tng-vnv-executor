@@ -44,10 +44,6 @@ class Result {
     String package_id
     String service_uuid
     String status
-    String stderr
-    String stdout
-    String test_plan_id
-    String test_uuid
     Date updated_at
     String uuid
 }
