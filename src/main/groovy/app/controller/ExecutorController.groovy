@@ -421,7 +421,8 @@ class ExecutorController {
                 result.instance_uuid=test.getTest().getService_instance_uuid()
                 result.package_id=test.getTest().getPackage_descriptor_uuid()
                 result.service_uuid=test.getTest().getNetwork_service_descriptor_uuid()
-                result.updated_at = new Date()
+                Date updatedAt = new Date()
+                result.updated_at = updatedAt.toInstant().atOffset(ZoneOffset.UTC).toString()
                 result.uuid=test.getTest().getTest_descriptor_uuid()
                 result.test_uuid=test.getTest().getTest_descriptor_uuid()
 
