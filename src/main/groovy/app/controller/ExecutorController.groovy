@@ -179,7 +179,7 @@ class ExecutorController {
 
         return responseUtils.getResponseEntity(
                 HttpStatus.ACCEPTED,
-                "test-uuid",
+                "test_uuid",
                 testDescriptor.uuid)
     }
 
