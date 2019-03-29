@@ -44,7 +44,7 @@ class Result {
     String package_id
     String service_uuid
     String status
-    Date updated_at
+    String updated_at
     String uuid
     String test_uuid
 }
