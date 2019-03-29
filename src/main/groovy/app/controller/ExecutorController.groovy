@@ -250,7 +250,7 @@ class ExecutorController {
                         response.setStatus("ERROR")
                         response.setMessage(message)
                         //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
-                        postCallback("${callback.getPath()}", response)
+                        postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                     }
                     return
                 }
@@ -267,7 +267,7 @@ class ExecutorController {
                     response.setTest_uuid(testId)
                     response.setStatus("RUNNING")
                     //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
-                    postCallback("${callback.getPath()}", response)
+                    postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                 }
 
                 //Wait for completion
@@ -301,7 +301,7 @@ class ExecutorController {
                         response.setStatus("ERROR")
                         response.setMessage(message)
                         //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
-                        postCallback("${callback.getPath()}", response)
+                        postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                     }
                     return
                 }
@@ -525,7 +525,7 @@ class ExecutorController {
                                     response.setStatus("ERROR")
                                     response.setMessage(message)
                                     //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
-                                    postCallback("${callback.getPath()}", response)
+                                    postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                                 }
                             }
 
@@ -538,7 +538,7 @@ class ExecutorController {
                                 response.setStatus("ERROR")
                                 response.setMessage(message)
                                 //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
-                                postCallback("${callback.getPath()}", response)
+                                postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                             }
                         }
                     }
@@ -570,7 +570,7 @@ class ExecutorController {
                         response.setStatus("ERROR")
                         response.setMessage(message)
                         //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
-                        postCallback("${callback.getPath()}", response)
+                        postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                         return
                     }
                 }
@@ -583,7 +583,7 @@ class ExecutorController {
                     response.setStatus("COMPLETED")
                     response.setResults_uuid(resultsUuid)
                     //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
-                    postCallback("${callback.getPath()}", response)
+                    postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                 }
 
                 //tests results repo
@@ -643,9 +643,9 @@ class ExecutorController {
         try {
 
             logger.info("Sending results to ${url}:")
-            //ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            //String json = ow.writeValueAsString(payload);
-            //logger.info(json)
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = ow.writeValueAsString(payload);
+            logger.info(json)
 
             URI uri = new URI(url)
 
