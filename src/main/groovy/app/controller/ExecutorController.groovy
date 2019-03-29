@@ -633,9 +633,9 @@ class ExecutorController {
         try {
 
             logger.info("Sending results to ${url}:")
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            String json = ow.writeValueAsString(payload);
-            logger.info(json)
+            //ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            //String json = ow.writeValueAsString(payload);
+            //logger.info(json)
 
             URI uri = new URI(url)
 
