@@ -249,7 +249,8 @@ class ExecutorController {
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(message)
-                        postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                        //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                        postCallback("${callback.getPath()}", response)
                     }
                     return
                 }
@@ -265,7 +266,8 @@ class ExecutorController {
                     Response response = new Response()
                     response.setTest_uuid(testId)
                     response.setStatus("RUNNING")
-                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    postCallback("${callback.getPath()}", response)
                 }
 
                 //Wait for completion
@@ -298,7 +300,8 @@ class ExecutorController {
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(message)
-                        postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                        //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                        postCallback("${callback.getPath()}", response)
                     }
                     return
                 }
@@ -349,7 +352,8 @@ class ExecutorController {
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(message)
-                        postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                        //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                        postCallback("${callback.getPath()}", response)
                     }
                     return
                 }
@@ -386,7 +390,8 @@ class ExecutorController {
                     Response response = new Response()
                     response.setTest_uuid(testId)
                     response.setStatus("CANCELLED")
-                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    postCallback("${callback.getPath()}", response)
                 }
             }
         })
@@ -402,7 +407,7 @@ class ExecutorController {
                 def resultsFolder
 
                 def repoUrl = "http://${RESULTS_REPO_NAME}:${RESULTS_REPO_PORT}/trr/test-suite-results"
-                def callbackBaseUrl = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}"
+                //def callbackBaseUrl = "http://${CALLBACK_SERVER_NAME}:${CALLBACK_SERVER_PORT}"
                 def testExecution = testExecutionRepository.findById(testId).orElse(null) as TestExecution
 
                 Instant instant
@@ -518,7 +523,8 @@ class ExecutorController {
                                     response.setTest_uuid(testId)
                                     response.setStatus("ERROR")
                                     response.setMessage(message)
-                                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                                    //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                                    postCallback("${callback.getPath()}", response)
                                 }
                             }
 
@@ -530,7 +536,8 @@ class ExecutorController {
                                 response.setTest_uuid(testId)
                                 response.setStatus("ERROR")
                                 response.setMessage(message)
-                                postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                                //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                                postCallback("${callback.getPath()}", response)
                             }
                         }
                     }
@@ -561,7 +568,8 @@ class ExecutorController {
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(message)
-                        postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                        //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                        postCallback("${callback.getPath()}", response)
                         return
                     }
                 }
@@ -573,7 +581,8 @@ class ExecutorController {
                     response.setTest_uuid(testId)
                     response.setStatus("COMPLETED")
                     response.setResults_uuid(resultsUuid)
-                    postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    //postCallback("${callbackBaseUrl}${callback.getPath()}", response)
+                    postCallback("${callback.getPath()}", response)
                 }
 
                 //tests results repo
