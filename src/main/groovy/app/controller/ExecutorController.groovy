@@ -436,27 +436,27 @@ class ExecutorController {
                 List<Map<String, Object>> listOfMapDetails = new ArrayList<>()
 
                 for (probe in resultsFolder.listFiles()){
-                    //logger.info("<<<<<< Probe: ${probe.name}")
+                    logger.info("<<<<<< Probe: ${probe.name}")
                     results = new ArrayList<>()
                     details = new ArrayList<>()
                     for (instance in probe.listFiles()){
-                        //logger.info("-- instance: ${instance.name}")
+                        logger.info("-- instance: ${instance.name}")
                         for (file in instance.listFiles()){
                             for (step in exercisePhaseSteps){
                                 if (step.run == probe.name){
                                     // results file
-                                    //logger.info("detected file: ${file.name}")
+                                    logger.info("detected file: ${file.name}")
                                     def resultsFileName
                                     for (output in step.getOutput()){
                                         resultsFileName = output.get("results")
-                                        //logger.info("the results file name is: ${resultsFileName}")
+                                        logger.info("the results file name is: ${resultsFileName}")
                                         break
                                     }
                                     if (file.name == resultsFileName){
-                                        //logger.info("adding ${file.name} to results")
+                                        logger.info("adding ${file.name} to results")
                                         results.add(file.getText())
                                     } else { //details file
-                                        //logger.info("adding ${file.name} to details")
+                                        logger.info("adding ${file.name} to details")
                                         details.add(file.getText())
                                     }
                                     break
