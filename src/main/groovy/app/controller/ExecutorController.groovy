@@ -114,6 +114,8 @@ class ExecutorController {
     @Value('${CALLBACKS}')
     String CALLBACKS
 
+    @Value('${DELETE_FINISHED_TEST}')
+    String DELETE_FINISHED_TEST
 
     @RequestMapping(method = RequestMethod.POST,
             path = "/api/v1/test-executions",
@@ -565,7 +567,7 @@ class ExecutorController {
                 }
 
                 //Callback
-                if (CALLBACKS.toUpperCase()=="ENABLED") {
+                if (CALLBACKS.toUpperCase()!="DISABLED") {
                     callback = test.getCallback(Callback.CallbackTypes.finish)
                     Response response = new Response()
                     response.setTest_uuid(testId)
@@ -578,20 +580,22 @@ class ExecutorController {
 
                 //delete folders
                 try {
-                    def process = Runtime.getRuntime().exec("rm -rf /executor/tests/${testId}")
-                    logger.info("Executing: rm -rf /executor/tests/${testId}")
-                    process.waitForProcessOutput()
-                    //logger.info("> ${process}")
-                    if (!process.toString().contains("exitValue=0")) {
-                        throw new Exception("FAILED")
-                    }
+                    if(DELETE_FINISHED_TEST.toUpperCase()!="DISABLED"){
+                        def process = Runtime.getRuntime().exec("rm -rf /executor/tests/${testId}")
+                        logger.info("Executing: rm -rf /executor/tests/${testId}")
+                        process.waitForProcessOutput()
+                        //logger.info("> ${process}")
+                        if (!process.toString().contains("exitValue=0")) {
+                            throw new Exception("FAILED")
+                        }
 
-                    process = Runtime.getRuntime().exec("rm -rf /executor/compose_files/${testId}-docker-compose.yml")
-                    logger.info("Executing: rm -rf /executor/compose_files/${testId}-docker-compose.yml")
-                    process.waitForProcessOutput()
-                    //logger.info("> ${process}")
-                    if (!process.toString().contains("exitValue=0")) {
-                        throw new Exception("FAILED")
+                        process = Runtime.getRuntime().exec("rm -rf /executor/compose_files/${testId}-docker-compose.yml")
+                        logger.info("Executing: rm -rf /executor/compose_files/${testId}-docker-compose.yml")
+                        process.waitForProcessOutput()
+                        //logger.info("> ${process}")
+                        if (!process.toString().contains("exitValue=0")) {
+                            throw new Exception("FAILED")
+                        }
                     }
                 } catch (Exception e) {
                     logger.error("Error deleting compose file")
