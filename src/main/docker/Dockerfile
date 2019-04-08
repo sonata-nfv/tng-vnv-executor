@@ -41,6 +41,7 @@ RUN curl -L https://github.com/docker/compose/releases/download/1.23.2/docker-co
 RUN mkdir /executor
 
 ENV CALLBACKS="enabled"
+ENV DELETE_FINISHED_TESTS="enabled"
 
 ADD wait_for.sh /wait_for.sh
 
@@ -51,4 +52,4 @@ ADD application.properties application.properties
 
 VOLUME /executor
 
-ENTRYPOINT ["java", "-jar", "-Xmx1024m", "-Xms256m", "-Dtng-vnv-executor", "-Djava.security.egd=file:/dev/./urandom", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "-Xmx512m", "-Xms256m", "-Dtng-vnv-executor", "-Djava.security.egd=file:/dev/./urandom", "/app.jar"]
