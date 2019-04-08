@@ -32,7 +32,7 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.util
+package app.logic
 
 import app.model.docker_compose.DockerCompose
 import app.model.docker_compose.Service
@@ -60,9 +60,6 @@ class Converter {
 
     @Value('${DC.VOLUME_PATH}')
     String VOLUME_PATH
-
-    //@Value('${DC.CUSTOM_COMMAND}')
-    //String CUSTOM_COMMAND
 
     @Value('${TD.ERROR.NO_PHASES_INFO}')
     String ERROR_NO_PHASES_INFO
@@ -242,9 +239,7 @@ class Converter {
             service.volumes.add(String.format(VOLUME_COMPOSE_FILE, testDescriptor.uuid))
             service.volumes.add(String.format(VOLUME_DOCKER_SOCK))
             service.volumes.add(String.format(VOLUME_DOCKER))
-            //service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid, service.name))
             service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid))
-            //service.volumes.add(String.format(VOLUME_DOCKER_COMPOSE_BIN))
 
             if (waitForCmd.size() != 0) {
                 service.volumes.add("${WAIT_FOR_SCRIPT}:${WAIT_FOR_SCRIPT}".toString())
