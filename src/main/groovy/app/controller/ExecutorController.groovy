@@ -92,10 +92,13 @@ class ExecutorController {
         //get TD
         TestDescriptor testDescriptor = test.getTest()
 
-        // ID is generated, never will already exist in DB
-        testDescriptor.uuid = UUID.randomUUID().toString()
-        while (testExecutionRepository.findById(testDescriptor.uuid).isPresent()) {
-            testDescriptor.uuid = UUID.randomUUID().toString()
+        if (!testDescriptor.getTest_uuid()) {
+            // ID is generated, never will already exist in DB
+            testDescriptor.test_uuid = UUID.randomUUID().toString()
+
+            while (testExecutionRepository.findById(testDescriptor.test_uuid).isPresent()) {
+                testDescriptor.test_uuid = UUID.randomUUID().toString()
+            }
         }
 
         def dockerCompose
@@ -111,9 +114,9 @@ class ExecutorController {
         }
 
         try {
-            fileUtils.createTestDirectories(testDescriptor.uuid, new ArrayList<Service>(dockerCompose.services.values()))
+            fileUtils.createTestDirectories(testDescriptor.test_uuid, new ArrayList<Service>(dockerCompose.services.values()))
             def dockerComposeString = converter.serializeDockerCompose(dockerCompose)
-            fileUtils.createDockerComposeFile(testDescriptor.uuid, dockerComposeString)
+            fileUtils.createDockerComposeFile(testDescriptor.test_uuid, dockerComposeString)
 
         } catch (Exception e) {
             logger.error("Error storing the docker-compose file: ${e.getMessage()}".toString(), e)
@@ -124,7 +127,7 @@ class ExecutorController {
         }
 
         try {
-            def testExecution = new TestExecution(testDescriptor.uuid, converter.serializeDockerCompose(dockerCompose))
+            def testExecution = new TestExecution(testDescriptor.test_uuid, converter.serializeDockerCompose(dockerCompose))
             testExecutionRepository.save(testExecution)
         } catch (Exception e) {
             logger.error("Error storing the test exercise in DB: ${e.getMessage()}".toString(), e)
@@ -134,22 +137,22 @@ class ExecutorController {
                     e.getCause())
         }
 
-        executor.executeTest(testDescriptor.uuid, dockerCompose, test)
+        executor.executeTest(testDescriptor.test_uuid, dockerCompose, test)
 
         return responseUtils.getResponseEntity(
                 HttpStatus.ACCEPTED,
                 "test_uuid",
-                testDescriptor.uuid)
+                testDescriptor.test_uuid)
     }
 
     @RequestMapping(method = RequestMethod.DELETE,
             path = "/api/v1/test-executions/{test_id}/cancel",
             consumes = "application/json",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Cancel an executing test", notes = "Receive a test uuid and callbacks, check if it is running and cancel it if possible")
+    @ApiOperation(value = "Cancel an executing test", notes = "Receive a test test_uuid and callbacks, check if it is running and cancel it if possible")
     @ApiResponses([
             @ApiResponse(code = 200, message = "Test has been cancelled"),
-            @ApiResponse(code = 404, message = "The test with the provided uuid was not found"),
+            @ApiResponse(code = 404, message = "The test with the provided test_uuid was not found"),
             @ApiResponse(code = 500, message = "There was a problem during the test cancelling")
     ])
     ResponseEntity<String> testCancelExecutionRequest(@PathVariable("test_id") String testId, @RequestBody Test callbacks) {
@@ -162,7 +165,7 @@ class ExecutorController {
 
             return responseUtils.getResponseEntity(
                     HttpStatus.ACCEPTED,
-                    "test-uuid", testId)
+                    "test-test_uuid", testId)
         }
 
         return responseUtils.getErrorResponseEntity(

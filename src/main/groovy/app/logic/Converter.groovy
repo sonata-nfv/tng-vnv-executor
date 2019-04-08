@@ -129,8 +129,8 @@ class Converter {
     TestDescriptor getTestDescriptor(String testDescriptorString) throws IOException, JsonParseException, JsonMappingException {
 
         def testDescriptor = mapper.readValue(testDescriptorString, TestDescriptor.class)
-        if (!testDescriptor.uuid) {
-            testDescriptor.uuid = UUID.randomUUID().toString()
+        if (!testDescriptor.test_uuid) {
+            testDescriptor.test_uuid = UUID.randomUUID().toString()
         }
 
         logger.debug("Read test descriptor: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testDescriptor)}")
@@ -231,15 +231,15 @@ class Converter {
                         throw new RuntimeException(String.format(ERROR_NO_DEPENDENCY_FOUND, dep))
                     }
 
-                    waitForCmd.add("${WAIT_FOR_SCRIPT} \"${dep}\" \"${testDescriptor.uuid}\" \"/compose_file/docker-compose.yml\"".toString())
+                    waitForCmd.add("${WAIT_FOR_SCRIPT} \"${dep}\" \"${testDescriptor.test_uuid}\" \"/compose_file/docker-compose.yml\"".toString())
                 }
             }
 
             service.volumes = new ArrayList<>()
-            service.volumes.add(String.format(VOLUME_COMPOSE_FILE, testDescriptor.uuid))
+            service.volumes.add(String.format(VOLUME_COMPOSE_FILE, testDescriptor.test_uuid))
             service.volumes.add(String.format(VOLUME_DOCKER_SOCK))
             service.volumes.add(String.format(VOLUME_DOCKER))
-            service.volumes.add(String.format(VOLUME_PATH, testDescriptor.uuid))
+            service.volumes.add(String.format(VOLUME_PATH, testDescriptor.test_uuid))
 
             if (waitForCmd.size() != 0) {
                 service.volumes.add("${WAIT_FOR_SCRIPT}:${WAIT_FOR_SCRIPT}".toString())

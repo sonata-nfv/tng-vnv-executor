@@ -58,7 +58,7 @@ class TestDescriptorPhase {
 
     @Override
     String toString() {
-        return "TestDescriptorPhase{uuid=${id}, steps=${steps.toString()}}"
+        return "TestDescriptorPhase{test_uuid=${id}, steps=${steps.toString()}}"
     }
 }
 

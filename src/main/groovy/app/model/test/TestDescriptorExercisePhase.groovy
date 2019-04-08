@@ -41,7 +41,7 @@ class TestDescriptorExercisePhase extends TestDescriptorPhase {
 
     @Override
     String toString() {
-        return "TestDescriptorExercisePhase{uuid=${id}, steps=${steps.toString()}}"
+        return "TestDescriptorExercisePhase{test_uuid=${id}, steps=${steps.toString()}}"
     }
 }
 
