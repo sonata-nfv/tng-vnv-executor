@@ -46,7 +46,7 @@ class TestExecution implements Serializable {
 
     @Id
     @Column(name = "test_uuid", updatable = false, nullable = false)
-    String uuid
+    String test_uuid
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -70,7 +70,7 @@ class TestExecution implements Serializable {
     TestExecution() {}
 
     TestExecution(String uuid, String dockerCompose) {
-        this.uuid = uuid
+        this.test_uuid = uuid
         this.dockerCompose = dockerCompose
         this.state = TestState.STARTING
     }

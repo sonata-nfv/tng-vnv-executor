@@ -54,7 +54,7 @@ class DatabaseSpec extends Specification {
 
     def setupSpec() {
         testExecution = new TestExecution()
-        testExecution.uuid = UUID.randomUUID().toString()
+        testExecution.test_uuid = UUID.randomUUID().toString()
         testExecution.setState(TestExecution.TestState.STARTING)
     }
 
@@ -62,7 +62,7 @@ class DatabaseSpec extends Specification {
 
         when:
         testExecutionRepository.save(testExecution)
-        def aux = testExecutionRepository.findById(testExecution.getUuid()).get()
+        def aux = testExecutionRepository.findById(testExecution.getTest_uuid()).get()
 
         then:
         noExceptionThrown()
@@ -77,7 +77,7 @@ class DatabaseSpec extends Specification {
         setup: testExecution.state = TestExecution.TestState.CANCELLED
         when:
         testExecutionRepository.save(testExecution)
-        def aux = testExecutionRepository.findById(testExecution.uuid).get()
+        def aux = testExecutionRepository.findById(testExecution.test_uuid).get()
 
         then:
         noExceptionThrown()
@@ -90,7 +90,7 @@ class DatabaseSpec extends Specification {
 
         when:
         testExecutionRepository.delete(testExecution)
-        testExecutionRepository.findById(testExecution.uuid).get()
+        testExecutionRepository.findById(testExecution.test_uuid).get()
 
         then: thrown(NoSuchElementException.class)
     }
