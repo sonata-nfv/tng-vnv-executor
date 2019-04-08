@@ -41,7 +41,7 @@ RUN curl -L https://github.com/docker/compose/releases/download/1.23.2/docker-co
 RUN mkdir /executor
 
 ENV CALLBACKS="enabled"
-ENV DELETE_FINISHED_TESTS="enabled"
+ENV DELETE_FINISHED_TEST="enabled"
 
 ADD wait_for.sh /wait_for.sh
 
