@@ -38,7 +38,7 @@ import app.config.ApplicationConfig
 import app.config.GeneralConfig
 import app.database.TestExecutionRepository
 import app.model.test.Condition
-import app.util.Validator
+import app.logic.Validator
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource

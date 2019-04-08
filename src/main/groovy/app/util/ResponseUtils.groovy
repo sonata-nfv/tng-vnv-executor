@@ -34,22 +34,34 @@
 
 package app.util
 
+import app.model.callback.Response
+import app.model.resultsRepo.PostTestSuiteResponse
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.ObjectWriter
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
 import org.springframework.context.annotation.Scope
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestTemplate
 
 @Component
 @PropertySource("classpath:application.properties")
 @Scope(value = "singleton")
-
+@Slf4j(value = "logger")
 class ResponseUtils {
 
     @Autowired
     ObjectMapper mapper
+
+    @Value('${CALLBACKS}')
+    static String CALLBACKS
 
     private static ResponseUtils instance = null
 
@@ -78,5 +90,54 @@ class ResponseUtils {
 
     ResponseEntity getResponseEntity(HttpStatus status, Map<String, Object> map) {
         return ResponseEntity.status(status).body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map))
+    }
+
+    static void postCallback(String url, Object payload) {
+
+        RestTemplate restTemplate = new RestTemplate()
+
+        try {
+
+            logger.info("Callbacks ${CALLBACKS}. Sending callback to ${url}")
+
+            URI uri = new URI(url)
+
+            HttpHeaders headers = new HttpHeaders()
+            headers.setContentType(MediaType.APPLICATION_JSON)
+
+            HttpEntity<Response> request = new HttpEntity<>(payload, headers)
+
+            def response = restTemplate.postForEntity(uri, request, String.class)
+
+        } catch (Exception e) {
+            logger.error(e)
+        }
+    }
+
+    static String postTestResult(String url, Object payload) {
+
+        RestTemplate restTemplate = new RestTemplate()
+
+        try {
+
+            logger.info("Sending results to ${url}:")
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = ow.writeValueAsString(payload);
+            logger.info(json)
+
+            URI uri = new URI(url)
+
+            HttpHeaders headers = new HttpHeaders()
+            headers.setContentType(MediaType.APPLICATION_JSON)
+
+            HttpEntity<Response> request = new HttpEntity<>(payload, headers)
+
+            ResponseEntity response = restTemplate.postForEntity(uri, request, PostTestSuiteResponse.class)
+
+            return response.getBody().getUuid()
+
+        } catch (Exception e) {
+            logger.error(e)
+        }
     }
 }

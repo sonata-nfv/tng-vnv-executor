@@ -36,7 +36,7 @@
 import app.config.ApplicationConfig
 import app.config.GeneralConfig
 import app.model.test.*
-import app.util.Converter
+import app.logic.Converter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
