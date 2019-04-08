@@ -105,6 +105,7 @@ class Validator {
                 Date updatedAt = new Date()
                 result.updated_at = updatedAt.toInstant().atOffset(ZoneOffset.UTC).toString()
                 result.test_uuid=test.getTest().getTest_descriptor_uuid()
+                result.uuid=test.getTest().getTest_uuid()
 
                 def exercisePhaseSteps = (List<TestDescriptorExercisePhaseStep>)test.getTest().getPhase(TestDescriptorPhases.EXERCISE_PHASE).getSteps()
 

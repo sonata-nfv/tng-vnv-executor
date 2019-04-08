@@ -45,7 +45,7 @@ import javax.persistence.*
 class TestExecution implements Serializable {
 
     @Id
-    @Column(name = "uuid", updatable = false, nullable = false)
+    @Column(name = "test_uuid", updatable = false, nullable = false)
     String uuid
 
     @Column

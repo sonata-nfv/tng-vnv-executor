@@ -43,7 +43,7 @@ import io.swagger.annotations.ApiModelProperty
 class TestDescriptor {
 
     @ApiModelProperty(required = false, hidden = true)
-    String uuid
+    String test_uuid
 
     String name
     String vendor
