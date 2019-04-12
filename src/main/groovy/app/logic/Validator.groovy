@@ -89,7 +89,7 @@ class Validator {
                 Instant instant
 
                 String repoUrl = "${RESULTS_REPO_URL}/trr/test-suite-results"
-                
+
                 //generating result with all files
 
                 Result result = new Result()
