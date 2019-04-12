@@ -73,13 +73,10 @@ class Validator {
     @Value('${CALLBACKS}')
     String CALLBACKS
 
-    @Value('${RESULTS_REPO_NAME}')
-    String RESULTS_REPO_NAME
+    @Value('${RESULTS_REPO_URL}')
+    String RESULTS_REPO_URLT
 
-    @Value('${RESULTS_REPO_PORT}')
-    String RESULTS_REPO_PORT
-
-    String repoUrl = "http://${RESULTS_REPO_NAME}:${RESULTS_REPO_PORT}/trr/test-suite-results"
+    String repoUrl = "${RESULTS_REPO_URL}/trr/test-suite-results"
 
     void executeValidation(final String testId, Test test) {
         taskExecutor.execute(new Runnable() {

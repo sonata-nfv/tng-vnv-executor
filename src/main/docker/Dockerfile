@@ -42,6 +42,7 @@ RUN mkdir /executor
 
 ENV CALLBACKS="enabled"
 ENV DELETE_FINISHED_TEST="enabled"
+ENV RESULTS_REPO_URL="http://tng-rep:4012"
 
 ADD wait_for.sh /wait_for.sh
 
