@@ -43,7 +43,6 @@ do
 			    exit "$exit_code"
 			fi
 		fi
-		sleep 5
 	done
 done
 
