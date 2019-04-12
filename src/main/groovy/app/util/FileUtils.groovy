@@ -108,8 +108,6 @@ class FileUtils {
             }
             process = Runtime.getRuntime().exec("dos2unix /executor/bash_scripts/wait_for.sh")
             logger.info("Executing: dos2unix /executor/bash_scripts/wait_for.sh")
-            def stdout = new StringWriter()
-            def stderr = new StringWriter()
             process.waitForProcessOutput(stdout, stderr)
             if (!process.toString().contains("exitValue=0")) {
                 logger.error("Error executing dos2unix against wait_for.sh script")
