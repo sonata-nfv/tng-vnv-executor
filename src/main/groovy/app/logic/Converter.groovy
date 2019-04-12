@@ -218,7 +218,7 @@ class Converter {
 
             List<String> waitForCmd = new ArrayList<>()
 
-            service.init = "true"
+            service.init = true
 
             service.scale = step.instances
             if (step.dependencies) {
