@@ -261,7 +261,9 @@ class Validator {
                     if(DELETE_FINISHED_TEST.toUpperCase()!="DISABLED"){
                         def process = Runtime.getRuntime().exec("rm -rf /executor/tests/${testId}")
                         logger.info("Executing: rm -rf /executor/tests/${testId}")
-                        process.waitForProcessOutput()
+                        def stdout = new StringWriter()
+                        def stderr = new StringWriter()
+                        process.waitForProcessOutput(stdout, stderr)
 
                         if (!process.toString().contains("exitValue=0")) {
                             throw new Exception("FAILED")
@@ -269,7 +271,7 @@ class Validator {
 
                         process = Runtime.getRuntime().exec("rm -rf /executor/compose_files/${testId}-docker-compose.yml")
                         logger.info("Executing: rm -rf /executor/compose_files/${testId}-docker-compose.yml")
-                        process.waitForProcessOutput()
+                        process.waitForProcessOutput(stdout, stderr)
 
                         if (!process.toString().contains("exitValue=0")) {
                             throw new Exception("FAILED")

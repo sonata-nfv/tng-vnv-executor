@@ -188,7 +188,9 @@ class Executor {
                 try {
                     process = Runtime.getRuntime().exec("docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v")
                     logger.info("Executing: docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v")
-                    process.waitForProcessOutput()
+                    def stdout = new StringWriter()
+                    def stderr = new StringWriter()
+                    process.waitForProcessOutput(stdout, stderr)
                     if (!process.toString().contains("exitValue=0")) {
                         throw new Exception("FAILED")
                     }
@@ -216,7 +218,9 @@ class Executor {
                 try {
                     def process = Runtime.getRuntime().exec("docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v")
                     logger.info("Executing: docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v")
-                    process.waitForProcessOutput()
+                    def stdout = new StringWriter()
+                    def stderr = new StringWriter()
+                    process.waitForProcessOutput(stdout, stderr)
 
                     if (!process.toString().contains("exitValue=0")) {
                         throw new Exception("FAILED")
@@ -238,7 +242,9 @@ class Executor {
                 try {
                     def process = Runtime.getRuntime().exec("rm -rf /executor/tests/${testId}")
                     logger.info("Executing: rm -rf /executor/tests/${testId}")
-                    process.waitForProcessOutput()
+                    def stdout = new StringWriter()
+                    def stderr = new StringWriter()
+                    process.waitForProcessOutput(stdout, stderr)
 
                     if (!process.toString().contains("exitValue=0")) {
                         throw new Exception("FAILED")
@@ -246,7 +252,7 @@ class Executor {
 
                     process = Runtime.getRuntime().exec("rm -rf /executor/compose_files/${testId}-docker-compose.yml")
                     logger.info("Executing: rm -rf /executor/compose_files/${testId}-docker-compose.yml")
-                    process.waitForProcessOutput()
+                    process.waitForProcessOutput(stdout, stderr)
 
                     if (!process.toString().contains("exitValue=0")) {
                         throw new Exception("FAILED")

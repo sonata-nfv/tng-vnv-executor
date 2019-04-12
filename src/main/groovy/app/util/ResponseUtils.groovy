@@ -61,7 +61,7 @@ class ResponseUtils {
     ObjectMapper mapper
 
     @Value('${CALLBACKS}')
-    static String CALLBACKS
+    String CALLBACKS
 
     private static ResponseUtils instance = null
 
