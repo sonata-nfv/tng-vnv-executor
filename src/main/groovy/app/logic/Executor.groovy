@@ -54,6 +54,9 @@ import org.springframework.stereotype.Component
 class Executor {
 
     @Autowired
+    Validator validator
+
+    @Autowired
     TaskExecutor taskExecutor
 
     @Autowired
@@ -167,7 +170,7 @@ class Executor {
 
                 //Launch Validation/Verification
                 logger.info("${testId} SUCCESSFULLY execution. Validation Pending...")
-                Validator.executeValidation(testId, test)
+                validator.executeValidation(testId, test)
             }
         })
     }
