@@ -92,7 +92,7 @@ class ResponseUtils {
         return ResponseEntity.status(status).body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map))
     }
 
-    static void postCallback(String url, Object payload) {
+    void postCallback(String url, Object payload) {
 
         RestTemplate restTemplate = new RestTemplate()
 
@@ -114,7 +114,7 @@ class ResponseUtils {
         }
     }
 
-    static String postTestResult(String url, Object payload) {
+    String postTestResult(String url, Object payload) {
 
         RestTemplate restTemplate = new RestTemplate()
 

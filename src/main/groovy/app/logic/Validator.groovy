@@ -67,6 +67,9 @@ class Validator {
     @Autowired
     TestExecutionRepository testExecutionRepository
 
+    @Autowired
+    ResponseUtils responseUtils
+
     @Value('${DELETE_FINISHED_TEST}')
     String DELETE_FINISHED_TEST
 
@@ -186,7 +189,7 @@ class Validator {
                                 instant = testExecution.lastModifiedDate.toInstant()
                                 result.ended_at=instant.atOffset(ZoneOffset.UTC).toString()
                                 result.status="ERROR"
-                                ResponseUtils.postTestResult(repoUrl, result)
+                                responseUtils.postTestResult(repoUrl, result)
                             } catch (Exception ex){
                                 if (CALLBACKS.toUpperCase()=="ENABLED") {
                                     callback = test.getCallback(Callback.CallbackTypes.cancel)
@@ -196,7 +199,7 @@ class Validator {
                                     response.setTest_uuid(testId)
                                     response.setStatus("ERROR")
                                     response.setMessage(message)
-                                    ResponseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
+                                    responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                                 }
                             }
 
@@ -208,7 +211,7 @@ class Validator {
                                 response.setTest_uuid(testId)
                                 response.setStatus("ERROR")
                                 response.setMessage(message)
-                                ResponseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
+                                responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                             }
                         }
                     }
@@ -229,7 +232,7 @@ class Validator {
                     result.status="PASSED"
                     instant = testExecution.lastModifiedDate.toInstant()
                     result.ended_at=instant.atOffset(ZoneOffset.UTC).toString()
-                    resultsUuid = ResponseUtils.postTestResult(repoUrl, result)
+                    resultsUuid = responseUtils.postTestResult(repoUrl, result)
                 } catch (Exception e){
                     if (CALLBACKS.toUpperCase()=="ENABLED") {
                         callback = test.getCallback(Callback.CallbackTypes.cancel)
@@ -239,7 +242,7 @@ class Validator {
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(message)
-                        ResponseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
+                        responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                         return
                     }
                 }
@@ -251,7 +254,7 @@ class Validator {
                     response.setTest_uuid(testId)
                     response.setStatus("COMPLETED")
                     response.setResults_uuid(resultsUuid)
-                    ResponseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
+                    responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                 }
 
                 //tests results repo

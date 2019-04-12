@@ -60,6 +60,9 @@ class Executor {
     TaskExecutor taskExecutor
 
     @Autowired
+    ResponseUtils responseUtils
+
+    @Autowired
     TestExecutionRepository testExecutionRepository
 
     @Value('${CALLBACKS}')
@@ -103,7 +106,7 @@ class Executor {
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(message)
-                        ResponseUtils.postCallback(" ${ callback.getPath().replace("<test_uuid>",testId)}", response)
+                        responseUtils.postCallback(" ${ callback.getPath().replace("<test_uuid>",testId)}", response)
                     }
                     return
                 }
@@ -119,7 +122,7 @@ class Executor {
                     Response response = new Response()
                     response.setTest_uuid(testId)
                     response.setStatus("RUNNING")
-                    ResponseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
+                    responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                 }
 
                 //Wait for completion
@@ -179,7 +182,7 @@ class Executor {
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(message)
-                        ResponseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
+                        responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                     }
                     return
                 }
@@ -233,7 +236,7 @@ class Executor {
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(message)
-                        ResponseUtils.postCallback("${callback.getPath()}", response)
+                        responseUtils.postCallback("${callback.getPath()}", response)
                     }
                     return
                 }
@@ -272,7 +275,7 @@ class Executor {
                     Response response = new Response()
                     response.setTest_uuid(testId)
                     response.setStatus("CANCELLED")
-                    ResponseUtils.postCallback("${callback.getPath()}", response)
+                    responseUtils.postCallback("${callback.getPath()}", response)
                 }
             }
         })
