@@ -40,6 +40,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 class Service {
 
     String image
+    String init
     Number scale
     String command
     List<String> entrypoint
