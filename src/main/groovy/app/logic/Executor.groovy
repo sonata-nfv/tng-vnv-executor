@@ -122,19 +122,34 @@ class Executor {
 
                 //Wait for completion
                 try {
-                    for (service in dockerCompose.services) {
-                        logger.info("waiting for ${testId}-${service.value.getName()}")
-                        logger.info("sh /executor/bash_scripts/wait_for.sh \"${service.value.getName()}\" \"${testId}\" \"/executor/compose_files/${testId}-docker-compose.yml\"")
-                        process = Runtime.getRuntime().exec("sh /executor/bash_scripts/wait_for.sh ${service.value.getName()} ${testId} /executor/compose_files/${testId}-docker-compose.yml")
-                        process.waitFor()
-                        logger.info("> ${process}")
-                        if (!process.toString().contains("exitValue=0")) {
-                            throw new Exception("FAILED")
+                    def exitedProbes
+
+                    while (exitedProbes < dockerCompose.services.size()){
+
+                        exitedProbes = 0
+
+                        for (service in dockerCompose.services) {
+                            logger.info("waiting for ${testId}-${service.value.getName()}")
+                            logger.info("sh /executor/bash_scripts/wait_for.sh \"${service.value.getName()}\" \"${testId}\" \"/executor/compose_files/${testId}-docker-compose.yml\"")
+                            process = Runtime.getRuntime().exec("sh /executor/bash_scripts/wait_for.sh ${service.value.getName()} ${testId} /executor/compose_files/${testId}-docker-compose.yml")
+                            //process.waitFor()
+                            process.waitForOrKill(30000)
+                            logger.info("> ${process}")
+                            if (process.toString().contains("exitValue=0")) {
+                                logger.info("${testId}-${service.value.getName()} finished OK")
+                                exitedProbes = exitedProbes +1
+                            } else {
+                                logger.info("${testId}-${service.value.getName()} NOT finished")
+                                if (!process.toString().contains("exitValue=143")){
+                                    throw new Exception("FAILED")
+                                }
+                            }
                         }
                     }
                 } catch (Exception e) {
 
                     logger.info("Probe FAILED: ${process.toString()}")
+                    process.destroy()
 
                     if (testExecution) {
                         testExecution.state = TestExecution.TestState.ERROR
