@@ -76,8 +76,6 @@ class Validator {
     @Value('${RESULTS_REPO_URL}')
     String RESULTS_REPO_URL
 
-    String repoUrl = "${RESULTS_REPO_URL}/trr/test-suite-results"
-
     void executeValidation(final String testId, Test test) {
         taskExecutor.execute(new Runnable() {
             @Override
@@ -90,6 +88,8 @@ class Validator {
 
                 Instant instant
 
+                String repoUrl = "${RESULTS_REPO_URL}/trr/test-suite-results"
+                
                 //generating result with all files
 
                 Result result = new Result()
