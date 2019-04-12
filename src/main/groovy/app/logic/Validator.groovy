@@ -74,7 +74,7 @@ class Validator {
     String CALLBACKS
 
     @Value('${RESULTS_REPO_URL}')
-    String RESULTS_REPO_URLT
+    String RESULTS_REPO_URL
 
     String repoUrl = "${RESULTS_REPO_URL}/trr/test-suite-results"
 

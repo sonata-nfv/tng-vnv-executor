@@ -28,7 +28,7 @@ This will generate a docker image with the latest version of the code. Before bu
  docker run -d -it --name tng-vnv-executor \
  -e CALLBACKS='enabled' \
  -e DELETE_FINISHED_TEST='disabled' \
- -e RESULTS_REPO_NAME=<RESULTS_REPO_NAME> -e RESULTS_REPO_PORT=<RESULTS_REPO_PORT> \
+ -e RESULTS_REPO_URL=<RESULTS_REPO_URL> \
  -v /var/run/docker.sock:/var/run/docker.sock \
  -v /usr/bin/docker:/usr/bin/docker \
  -v /executor:/executor \
@@ -44,8 +44,7 @@ where:
 - DELETE_FINISHED_TESTS: by default, the generated probes' output files are deleted from VnV Executor host once tests are completed and the results are stored in the repo. For developing purposes. This optional environment variable can maintain these files in the output folders without deletion when is disabled.
   - values: enabled/disabled
   - default: enabled
-- RESULTS_REPO_NAME: mandatory environment variable that contains the tests results repository name/IP where the results will be stored
-- RESULTS_REPO_NAME: mandatory environment variable that contains the tests results repository PORT
+- RESULTS_REPO_URL: mandatory environment variable that contains the tests results repository http://host:port URL where the results will be stored
 - port: internally, the VnV executor uses the 8080 port. This port can be mapped to another desired port. In 5GTango environments the selected port is 6300 
 - network: network where all VnV components (planner, curator, platform adaptor and executor) are configured
 
