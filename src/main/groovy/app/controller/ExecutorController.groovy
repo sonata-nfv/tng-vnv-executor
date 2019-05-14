@@ -43,6 +43,7 @@ import app.logic.Converter
 import app.logic.Executor
 import app.util.FileUtils
 import app.util.ResponseUtils
+import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.util.logging.Slf4j
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -76,6 +77,9 @@ class ExecutorController {
     @Autowired
     TestExecutionRepository testExecutionRepository
 
+    @Autowired
+    ObjectMapper mapper
+
     @RequestMapping(method = RequestMethod.POST,
             path = "/api/v1/test-executions",
             consumes = "application/json",
@@ -88,6 +92,9 @@ class ExecutorController {
             @ApiResponse(code = 500, message = "There was a problem during the test building")
     ])
     ResponseEntity<String> testExecutionRequest(@RequestBody Test test) {
+
+        def message = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(test)
+        logger.info("test request received from curator: ", message)
 
         //get TD
         TestDescriptor testDescriptor = test.getTest()
