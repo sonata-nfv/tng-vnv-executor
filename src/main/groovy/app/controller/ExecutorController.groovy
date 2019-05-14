@@ -95,6 +95,7 @@ class ExecutorController {
 
         def message = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(test)
         logger.info("test request received from curator: ", message)
+        logger.info("message.toString(): ${message.toString()}")
 
         //get TD
         TestDescriptor testDescriptor = test.getTest()
