@@ -94,8 +94,7 @@ class ExecutorController {
     ResponseEntity<String> testExecutionRequest(@RequestBody Test test) {
 
         def message = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(test)
-        logger.info("test request received from curator: ", message)
-        logger.info("test.toString(): ${test.toString()}")
+        logger.info("test request received from curator: ${message}")
 
         //get TD
         TestDescriptor testDescriptor = test.getTest()
