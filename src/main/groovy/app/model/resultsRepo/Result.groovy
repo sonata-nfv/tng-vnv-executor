@@ -46,5 +46,6 @@ class Result {
     String status
     String updated_at
     String uuid
+    String test_instance_uuid
     String test_uuid
 }
