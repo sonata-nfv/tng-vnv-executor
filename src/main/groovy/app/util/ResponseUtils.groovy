@@ -110,7 +110,7 @@ class ResponseUtils {
             def response = restTemplate.postForEntity(uri, request, String.class)
 
         } catch (Exception e) {
-            logger.error(e)
+            logger.error(e.message)
         }
     }
 
