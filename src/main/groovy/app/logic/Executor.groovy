@@ -178,7 +178,6 @@ class Executor {
                         def message = "Error waiting for test completion: ${e.toString()}"
                         logger.error(message)
                         Response response = new Response()
-                        response = new Response()
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(message)
