@@ -99,8 +99,9 @@ class ResponseUtils {
         try {
 
             url = url.replaceAll("\\s","")
-            
             logger.info("Callbacks ${CALLBACKS}. Sending callback to ${url}")
+
+            URI uri = new URI(url)
 
             HttpHeaders headers = new HttpHeaders()
             headers.setContentType(MediaType.APPLICATION_JSON)
