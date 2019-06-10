@@ -98,6 +98,7 @@ class ResponseUtils {
 
         try {
 
+            url = url.replaceAll("\\s","")
             logger.info("Callbacks ${CALLBACKS}. Sending callback to ${url}")
 
             URI uri = new URI(url)
