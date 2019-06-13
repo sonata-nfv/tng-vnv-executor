@@ -34,14 +34,13 @@
 
 package app.database
 
-import groovy.util.logging.Slf4j
+import app.util.TangoLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
-@Slf4j(value = "logger")
 class DatabaseMonitor {
 
     @Autowired
@@ -50,6 +49,12 @@ class DatabaseMonitor {
     @Value('${DB.DELETION_INTERVAL}')
     String DELETION_INTERVAL
 
+    //Tango logger
+    def tangoLogger = new TangoLogger()
+    String tangoLoggerType = null;
+    String tangoLoggerOperation = null;
+    String tangoLoggerMessage = null;
+    String tangoLoggerStatus = null;
 
     @Scheduled(cron = "0 0 * * * * ")
     void deleteWeekLongTests() {
@@ -76,11 +81,21 @@ class DatabaseMonitor {
         calendar.add(parameter, value)
 
         def oldTestExecutions = testExecutionRepository.findOldTestExecutions(calendar.time)
-        logger.debug("Number of tests to delete: ${oldTestExecutions.size()}")
+
+        tangoLoggerType = "D";
+        tangoLoggerOperation = "DatabaseMonitor.deleteWeekLongTests";
+        tangoLoggerMessage = ("Number of tests to delete: ${oldTestExecutions.size()}");
+        tangoLoggerStatus = "200";
+        tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
         for(oldTestExecution in oldTestExecutions) {
             testExecutionRepository.delete(oldTestExecution)
-            logger.info("Test deleted: ${oldTestExecution.test_uuid}")
+
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "DatabaseMonitor.deleteWeekLongTests";
+            tangoLoggerMessage = ("Test deleted: ${oldTestExecution.test_uuid}");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
         }
     }
 }
