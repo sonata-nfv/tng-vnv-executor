@@ -38,7 +38,7 @@ import app.model.callback.Response
 import app.model.resultsRepo.PostTestSuiteResponse
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.ObjectWriter
-import groovy.util.logging.Slf4j
+import app.util.TangoLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
@@ -54,7 +54,6 @@ import org.springframework.web.client.RestTemplate
 @Component
 @PropertySource("classpath:application.properties")
 @Scope(value = "singleton")
-@Slf4j(value = "logger")
 class ResponseUtils {
 
     @Autowired
@@ -73,6 +72,13 @@ class ResponseUtils {
         }
         return instance
     }
+
+    //Tango logger
+    def tangoLogger = new TangoLogger()
+    String tangoLoggerType = null;
+    String tangoLoggerOperation = null;
+    String tangoLoggerMessage = null;
+    String tangoLoggerStatus = null;
 
     ResponseEntity getResponseEntity(HttpStatus status, String key, Object value) {
         def map = new HashMap<String, Object>()
@@ -97,9 +103,11 @@ class ResponseUtils {
         RestTemplate restTemplate = new RestTemplate()
 
         try {
-
-            url = url.replaceAll("\\s","")
-            logger.info("Callbacks ${CALLBACKS}. Sending callback to ${url}")
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "ResponseUtils.postCallback";
+            tangoLoggerMessage = ("Callbacks ${CALLBACKS}. Sending callback to ${url}");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
             URI uri = new URI(url)
 
@@ -111,7 +119,11 @@ class ResponseUtils {
             def response = restTemplate.postForEntity(uri, request, String.class)
 
         } catch (Exception e) {
-            logger.error(e.message)
+            tangoLoggerType = "E";
+            tangoLoggerOperation = "ResponseUtils.postCallback";
+            tangoLoggerMessage = e.toString();
+            tangoLoggerStatus = "500";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
         }
     }
 
@@ -120,11 +132,20 @@ class ResponseUtils {
         RestTemplate restTemplate = new RestTemplate()
 
         try {
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "ResponseUtils.postTestResult";
+            tangoLoggerMessage = ("Sending results to ${url}:");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
-            logger.info("Sending results to ${url}:")
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             String json = ow.writeValueAsString(payload);
-            logger.info(json)
+
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "ResponseUtils.postTestResult";
+            tangoLoggerMessage = json;
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
             URI uri = new URI(url)
 
@@ -138,7 +159,11 @@ class ResponseUtils {
             return response.getBody().getUuid()
 
         } catch (Exception e) {
-            logger.error(e)
+            tangoLoggerType = "E";
+            tangoLoggerOperation = "ResponseUtils.postTestResult";
+            tangoLoggerMessage = e.toString();
+            tangoLoggerStatus = "500";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
         }
     }
 }

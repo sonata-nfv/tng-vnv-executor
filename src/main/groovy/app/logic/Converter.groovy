@@ -41,7 +41,7 @@ import app.model.test.*
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import groovy.util.logging.Slf4j
+import app.util.TangoLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -53,7 +53,6 @@ import org.springframework.stereotype.Component
 @PropertySource("classpath:application.properties")
 @Scope(value = "singleton")
 
-@Slf4j(value = "logger")
 class Converter {
 
     static Converter instance
@@ -116,6 +115,12 @@ class Converter {
     @Qualifier("yaml")
     ObjectMapper mapper
 
+    //Tango logger
+    def tangoLogger = new TangoLogger()
+    String tangoLoggerType = null;
+    String tangoLoggerOperation = null;
+    String tangoLoggerMessage = null;
+    String tangoLoggerStatus = null;
 
     private Converter() {}
 
@@ -133,7 +138,12 @@ class Converter {
             testDescriptor.test_uuid = UUID.randomUUID().toString()
         }
 
-        logger.debug("Read test descriptor: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testDescriptor)}")
+        tangoLoggerType = "D";
+        tangoLoggerOperation = "Converter.getTestDescriptor";
+        tangoLoggerMessage = ("Read test descriptor: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testDescriptor)}");
+        tangoLoggerStatus = "200";
+        tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
         return testDescriptor
 
     }
@@ -306,7 +316,12 @@ class Converter {
             dockerCompose.services.put(service.name, service)
         }
 
-        logger.debug("Convert test descriptor in docker-compose: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dockerCompose)}")
+        tangoLoggerType = "D";
+        tangoLoggerOperation = "Converter.getDockerCompose";
+        tangoLoggerMessage = ("Convert test descriptor in docker-compose: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dockerCompose)}");
+        tangoLoggerStatus = "200";
+        tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
         return dockerCompose
 
     }

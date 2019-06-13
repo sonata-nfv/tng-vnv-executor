@@ -44,7 +44,7 @@ import app.logic.Executor
 import app.util.FileUtils
 import app.util.ResponseUtils
 import com.fasterxml.jackson.databind.ObjectMapper
-import groovy.util.logging.Slf4j
+import app.util.TangoLogger
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
@@ -58,7 +58,6 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @Api
-@Slf4j(value = "logger")
 @PropertySource("classpath:application.properties")
 class ExecutorController {
 
@@ -80,6 +79,13 @@ class ExecutorController {
     @Autowired
     ObjectMapper mapper
 
+    //Tango logger
+    def tangoLogger = new TangoLogger()
+    String tangoLoggerType = null;
+    String tangoLoggerOperation = null;
+    String tangoLoggerMessage = null;
+    String tangoLoggerStatus = null;
+
     @RequestMapping(method = RequestMethod.POST,
             path = "/api/v1/test-executions",
             consumes = "application/json",
@@ -94,7 +100,12 @@ class ExecutorController {
     ResponseEntity<String> testExecutionRequest(@RequestBody Test test) {
 
         def message = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(test)
-        logger.info("test request received from curator: ${message}")
+
+        tangoLoggerType = "I";
+        tangoLoggerOperation = "ExecutorController.testExecutionRequest";
+        tangoLoggerMessage = ("test request received from curator: ${message}");
+        tangoLoggerStatus = "200";
+        tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
         //get TD
         TestDescriptor testDescriptor = test.getTest()
@@ -113,7 +124,12 @@ class ExecutorController {
             dockerCompose = converter.getDockerCompose(testDescriptor)
 
         } catch (Exception e) {
-            logger.error("Error creating the docker-compose: ${e.getMessage()}".toString(), e)
+            tangoLoggerType = "E";
+            tangoLoggerOperation = "ExecutorController.testExecutionRequest";
+            tangoLoggerMessage = ("Error creating the docker-compose: ${e.getMessage()}".toString()+e.toString());
+            tangoLoggerStatus = "500";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
             return responseUtils.getErrorResponseEntity(
                     HttpStatus.BAD_REQUEST,
                     "Error creating the docker-compose: ${e.getMessage()}".toString(),
@@ -126,7 +142,11 @@ class ExecutorController {
             fileUtils.createDockerComposeFile(testDescriptor.test_uuid, dockerComposeString)
 
         } catch (Exception e) {
-            logger.error("Error storing the docker-compose file: ${e.getMessage()}".toString(), e)
+            tangoLoggerType = "E";
+            tangoLoggerOperation = "ExecutorController.testExecutionRequest";
+            tangoLoggerMessage = ("Error storing the docker-compose file: ${e.getMessage()}".toString()+e.toString());
+            tangoLoggerStatus = "500";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
             return responseUtils.getErrorResponseEntity(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Error storing the docker-compose file: ${e.getMessage()}".toString(),
@@ -137,7 +157,11 @@ class ExecutorController {
             def testExecution = new TestExecution(testDescriptor.test_uuid, converter.serializeDockerCompose(dockerCompose))
             testExecutionRepository.save(testExecution)
         } catch (Exception e) {
-            logger.error("Error storing the test exercise in DB: ${e.getMessage()}".toString(), e)
+            tangoLoggerType = "E";
+            tangoLoggerOperation = "ExecutorController.testExecutionRequest";
+            tangoLoggerMessage = ("Error storing the test exercise in DB: ${e.getMessage()}".toString()+e.toString());
+            tangoLoggerStatus = "500";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
             return responseUtils.getErrorResponseEntity(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Error storing the test exercise in DB: ${e.getMessage()}".toString(),

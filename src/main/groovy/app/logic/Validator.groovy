@@ -46,7 +46,7 @@ import app.model.test.TestDescriptorPhases
 import app.model.test.TestDescriptorVerificationPhaseStep
 import app.util.ResponseUtils
 import groovy.json.JsonSlurper
-import groovy.util.logging.Slf4j
+import app.util.TangoLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
@@ -57,7 +57,6 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 @Component
-@Slf4j(value = "logger")
 @PropertySource("classpath:application.properties")
 class Validator {
 
@@ -78,6 +77,13 @@ class Validator {
 
     @Value('${RESULTS_REPO_URL}')
     String RESULTS_REPO_URL
+
+    //Tango logger
+    def tangoLogger = new TangoLogger()
+    String tangoLoggerType = null;
+    String tangoLoggerOperation = null;
+    String tangoLoggerMessage = null;
+    String tangoLoggerStatus = null;
 
     void executeValidation(final String testId, Test test) {
         taskExecutor.execute(new Runnable() {
@@ -150,7 +156,11 @@ class Validator {
                 result.details = listOfMapDetails
                 result.results = listOfMapResults
 
-                logger.info("-- Starting validation")
+                tangoLoggerType = "I";
+                tangoLoggerOperation = "Validator.executeValidation";
+                tangoLoggerMessage = ("-- Starting validation");
+                tangoLoggerStatus = "200";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
                 for (step in (List<TestDescriptorVerificationPhaseStep>) test.getTest().getPhase(TestDescriptorPhases.VERIFICATION_PHASE).getSteps()) {
                     for (exerciseStep in exercisePhaseSteps) {
@@ -159,7 +169,12 @@ class Validator {
                             break
                         }
                     }
-                    logger.info("Validating ${testId}-${service}")
+
+                    tangoLoggerType = "I";
+                    tangoLoggerOperation = "Validator.executeValidation";
+                    tangoLoggerMessage = ("Validating ${testId}-${service}");
+                    tangoLoggerStatus = "200";
+                    tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
                     for (condition in step.getConditions()) {
 
@@ -175,7 +190,12 @@ class Validator {
                                 }
 
                             }
-                            logger.info("${testId}-${service}-${condition.getName()} = ${condition.getVerdict()}")
+
+                            tangoLoggerType = "I";
+                            tangoLoggerOperation = "Validator.executeValidation";
+                            tangoLoggerMessage = ("${testId}-${service}-${condition.getName()} = ${condition.getVerdict()}");
+                            tangoLoggerStatus = "200";
+                            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
                         } catch (Exception e) {
 
@@ -194,8 +214,13 @@ class Validator {
                             } catch (Exception ex){
                                 if (CALLBACKS.toUpperCase()=="ENABLED") {
                                     callback = test.getCallback(Callback.CallbackTypes.cancel)
-                                    def message = "Error saving results in repo ${testId}-${service}: ${ex.toString()}"
-                                    logger.error(message)
+
+                                    tangoLoggerType = "E";
+                                    tangoLoggerOperation = "Validator.executeValidation";
+                                    tangoLoggerMessage = ("Error saving results in repo ${testId}-${service}: ${ex.toString()}");
+                                    tangoLoggerStatus = "500";
+                                    tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
                                     Response response = new Response()
                                     response.setTest_uuid(testId)
                                     response.setStatus("ERROR")
@@ -206,8 +231,13 @@ class Validator {
 
                             if (CALLBACKS.toUpperCase()=="ENABLED") {
                                 callback = test.getCallback(Callback.CallbackTypes.cancel)
-                                def message = "Error validating ${testId}-${service}: ${e.toString()}"
-                                logger.error(message)
+
+                                tangoLoggerType = "E";
+                                tangoLoggerOperation = "Validator.executeValidation";
+                                tangoLoggerMessage = ("Error validating ${testId}-${service}: ${e.toString()}");
+                                tangoLoggerStatus = "500";
+                                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
                                 Response response = new Response()
                                 response.setTest_uuid(testId)
                                 response.setStatus("ERROR")
@@ -217,7 +247,12 @@ class Validator {
                         }
                     }
                 }
-                logger.info("validation FINISHED")
+
+                tangoLoggerType = "I";
+                tangoLoggerOperation = "Validator.executeValidation";
+                tangoLoggerMessage = ("validation FINISHED");
+                tangoLoggerStatus = "200";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
                 //Update Database with status completed
 
@@ -237,8 +272,13 @@ class Validator {
                 } catch (Exception e){
                     if (CALLBACKS.toUpperCase()=="ENABLED") {
                         callback = test.getCallback(Callback.CallbackTypes.cancel)
-                        def message = "Error saving results in repo ${testId}-${service}: ${e.toString()}"
-                        logger.error(message)
+
+                        tangoLoggerType = "E";
+                        tangoLoggerOperation = "Validator.executeValidation";
+                        tangoLoggerMessage = ("Error saving results in repo ${testId}-${service}: ${e.toString()}");
+                        tangoLoggerStatus = "500";
+                        tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
                         Response response = new Response()
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
@@ -264,7 +304,13 @@ class Validator {
                 try {
                     if(DELETE_FINISHED_TEST.toUpperCase()!="DISABLED"){
                         def process = Runtime.getRuntime().exec("rm -rf /executor/tests/${testId}")
-                        logger.info("Executing: rm -rf /executor/tests/${testId}")
+
+                        tangoLoggerType = "I";
+                        tangoLoggerOperation = "Validator.executeValidation";
+                        tangoLoggerMessage = ("Executing: rm -rf /executor/tests/${testId}");
+                        tangoLoggerStatus = "200";
+                        tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
                         def stdout = new StringWriter()
                         def stderr = new StringWriter()
                         process.waitForProcessOutput(stdout, stderr)
@@ -274,7 +320,13 @@ class Validator {
                         }
 
                         process = Runtime.getRuntime().exec("rm -rf /executor/compose_files/${testId}-docker-compose.yml")
-                        logger.info("Executing: rm -rf /executor/compose_files/${testId}-docker-compose.yml")
+
+                        tangoLoggerType = "I";
+                        tangoLoggerOperation = "Validator.executeValidation";
+                        tangoLoggerMessage = ("Executing: rm -rf /executor/compose_files/${testId}-docker-compose.yml");
+                        tangoLoggerStatus = "200";
+                        tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
                         process.waitForProcessOutput(stdout, stderr)
 
                         if (!process.toString().contains("exitValue=0")) {
@@ -282,7 +334,11 @@ class Validator {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("Error deleting compose file")
+                    tangoLoggerType = "E";
+                    tangoLoggerOperation = "Validator.executeValidation";
+                    tangoLoggerMessage = ("Error deleting compose file");
+                    tangoLoggerStatus = "500";
+                    tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
                 }
             }
         })
@@ -294,7 +350,11 @@ class Validator {
 
             if ("json" == (condition.getType())){
 
-                logger.info("Checking that ${condition.getFind()} ${condition.getCondition()} than ${condition.getValue()} in ${resultsFile} file".toString())
+                tangoLoggerType = "I";
+                tangoLoggerOperation = "Validator.validateConditions";
+                tangoLoggerMessage = ("Checking that ${condition.getFind()} ${condition.getCondition()} than ${condition.getValue()} in ${resultsFile} file".toString());
+                tangoLoggerStatus = "200";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
                 def value = findDeep(new JsonSlurper().parseText(resultsFile.getText()), condition.getFind()).toString()
 
@@ -339,7 +399,12 @@ class Validator {
                 }
 
             } else { //txt file
-                logger.info("Checking that ${condition.getFind()} is ${condition.getCondition()} in ${resultsFile} file".toString())
+                tangoLoggerType = "I";
+                tangoLoggerOperation = "Validator.validateConditions";
+                tangoLoggerMessage = ("Checking that ${condition.getFind()} is ${condition.getCondition()} in ${resultsFile} file".toString());
+                tangoLoggerStatus = "200";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
                 switch (condition.getCondition()){
                     case "present":
                         if (!resultsFile.getText().contains(condition.getFind())) {
