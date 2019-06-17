@@ -126,7 +126,7 @@ class Executor {
                         Response response = new Response()
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
-                        response.setMessage(message)
+                        response.setMessage(tangoLoggerMessage)
                         responseUtils.postCallback(" ${ callback.getPath().replace("<test_uuid>",testId)}", response)
                     }
                     return
@@ -197,10 +197,10 @@ class Executor {
                         tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
                         if (!process.toString().contains("exitValue=0")) {
-                            tangoLoggerType = "I";
+                            tangoLoggerType = "E";
                             tangoLoggerOperation = "Executor.executeTest";
                             tangoLoggerMessage = ("${testId}-${service.value.getName()} FAILED");
-                            tangoLoggerStatus = "200";
+                            tangoLoggerStatus = "500";
                             tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
                             throw new Exception("FAILED")
@@ -227,7 +227,7 @@ class Executor {
                         Response response = new Response()
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
-                        response.setMessage(message)
+                        response.setMessage(tangoLoggerMessage)
                         responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                     }
                     return
@@ -307,7 +307,7 @@ class Executor {
                         Response response = new Response()
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
-                        response.setMessage(message)
+                        response.setMessage(tangoLoggerMessage)
                         responseUtils.postCallback("${callback.getPath()}", response)
                     }
                     return
