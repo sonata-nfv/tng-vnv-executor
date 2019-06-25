@@ -35,13 +35,13 @@
 package app.util
 
 import groovy.util.logging.Slf4j
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.springframework.stereotype.Component
 import java.sql.Timestamp;
 
 @Component
-//@Scope(value = "singleton")
-@Slf4j(value = "logger")
-
+@Slf4j
 class TangoLogger {
 
   /*
@@ -57,17 +57,17 @@ class TangoLogger {
     String timestamps = timestamp.toString();
 
     if(type == 'E'){
-      logger.error(
+      log.error(
           "{\"type\":\"{}\",\"timestamp\":\"{}\",\"start_stop\":\"\",\"component\":\"tng-vnv-executor\",\"operation\":\"{}\",\"message\":\"{}\",\"status\":\"{}\",\"time_elapsed\":\"\"}",
           type, timestamps, operation, message, status);
     }
     else if (type == 'D'){
-      logger.debug(
+      log.debug(
           "{\"type\":\"{}\",\"timestamp\":\"{}\",\"start_stop\":\"\",\"component\":\"tng-vnv-executor\",\"operation\":\"{}\",\"message\":\"{}\",\"status\":\"{}\",\"time_elapsed\":\"\"}",
           type, timestamps, operation, message, status);
     }
     else if (type == 'I'){
-      logger.info(
+      log.info(
           "{\"type\":\"{}\",\"timestamp\":\"{}\",\"start_stop\":\"\",\"component\":\"tng-vnv-executor\",\"operation\":\"{}\",\"message\":\"{}\",\"status\":\"{}\",\"time_elapsed\":\"\"}",
           type, timestamps, operation, message, status);
     }
