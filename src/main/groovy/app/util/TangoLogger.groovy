@@ -34,14 +34,12 @@
 
 package app.util
 
-import groovy.util.logging.Slf4j
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.springframework.stereotype.Component
 import java.sql.Timestamp;
 
 @Component
-//@Scope(value = "singleton")
-@Slf4j(value = "logger")
-
 class TangoLogger {
 
   /*
@@ -53,6 +51,7 @@ class TangoLogger {
 
   def log(String type, String operation, String message, String status){
 
+    Logger logger = LogManager.getLogger(TangoLogger.class);
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     String timestamps = timestamp.toString();
 
