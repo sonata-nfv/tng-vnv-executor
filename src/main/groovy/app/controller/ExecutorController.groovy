@@ -99,14 +99,6 @@ class ExecutorController {
     ])
     ResponseEntity<String> testExecutionRequest(@RequestBody Test test) {
 
-        def message = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(test)
-
-        tangoLoggerType = "I";
-        tangoLoggerOperation = "ExecutorController.testExecutionRequest";
-        tangoLoggerMessage = ("test request received from curator: ${message}");
-        tangoLoggerStatus = "200";
-        tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
-
         //get TD
         TestDescriptor testDescriptor = test.getTest()
 
@@ -118,6 +110,13 @@ class ExecutorController {
                 testDescriptor.test_uuid = UUID.randomUUID().toString()
             }
         }
+
+        def message = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(test)
+        tangoLoggerType = "I";
+        tangoLoggerOperation = "ExecutorController.testExecutionRequest";
+        tangoLoggerMessage = ("Test plan with ${testDescriptor.getTest_uuid()} will be executed. Test request received from curator: ${message}");
+        tangoLoggerStatus = "200";
+        tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
         def dockerCompose
         try {
