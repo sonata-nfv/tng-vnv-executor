@@ -41,7 +41,7 @@ RUN curl -L https://github.com/docker/compose/releases/download/1.23.2/docker-co
 RUN mkdir /executor
 
 ENV CALLBACKS="enabled"
-ENV DELETE_FINISHED_TEST="enabled"
+ENV DELETE_FINISHED_TEST="disabled"
 ENV RESULTS_REPO_URL="http://tng-rep:4012"
 
 ADD wait_for.sh /wait_for.sh
