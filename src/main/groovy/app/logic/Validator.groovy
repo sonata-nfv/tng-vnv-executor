@@ -179,7 +179,7 @@ class Validator {
                     for (condition in step.getConditions()) {
 
                         try {
-                            resultsFolder = new File("/executor/tests/${testId}/results/${service}")
+                            resultsFolder = new File("/executor/tests/${testId}/output/${service}")
 
                             for (instance in resultsFolder.listFiles()){
 
