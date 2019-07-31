@@ -48,4 +48,5 @@ class Result {
     String uuid
     String test_instance_uuid
     String test_uuid
+    String service_instantiation_time
 }
