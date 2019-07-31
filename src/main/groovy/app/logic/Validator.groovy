@@ -112,6 +112,7 @@ class Validator {
                 result.updated_at = updatedAt.toInstant().atOffset(ZoneOffset.UTC).toString()
                 result.test_uuid=test.getTest().getTest_descriptor_uuid()
                 result.test_instance_uuid=test.getTest().getTest_uuid()
+                result.service_instantiation_time=test.getService_instantiation_time()
                 //result.uuid=UUID.randomUUID()
 
                 def exercisePhaseSteps = (List<TestDescriptorExercisePhaseStep>)test.getTest().getPhase(TestDescriptorPhases.EXERCISE_PHASE).getSteps()
@@ -224,7 +225,7 @@ class Validator {
                                     Response response = new Response()
                                     response.setTest_uuid(testId)
                                     response.setStatus("ERROR")
-                                    response.setMessage(message)
+                                    response.setMessage(tangoLoggerMessage)
                                     responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                                 }
                             }
@@ -241,7 +242,7 @@ class Validator {
                                 Response response = new Response()
                                 response.setTest_uuid(testId)
                                 response.setStatus("ERROR")
-                                response.setMessage(message)
+                                response.setMessage(tangoLoggerMessage)
                                 responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                             }
                         }
@@ -282,7 +283,7 @@ class Validator {
                         Response response = new Response()
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
-                        response.setMessage(message)
+                        response.setMessage(tangoLoggerMessage)
                         responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                         return
                     }
