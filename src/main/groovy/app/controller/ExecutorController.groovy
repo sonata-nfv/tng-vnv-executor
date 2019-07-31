@@ -109,6 +109,10 @@ class ExecutorController {
             while (testExecutionRepository.findById(testDescriptor.test_uuid).isPresent()) {
                 testDescriptor.test_uuid = UUID.randomUUID().toString()
             }
+        } else {
+            while (testExecutionRepository.findById(testDescriptor.getTest_uuid()).isPresent()) {
+                testDescriptor.test_uuid = UUID.randomUUID().toString()
+            }
         }
 
         def message = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(test)
