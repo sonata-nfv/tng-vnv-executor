@@ -115,8 +115,8 @@ class ExecutorController {
             }
         }
 
-        //def message = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(test)
-        def message = mapper.writeValueAsString(test)
+        def message = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(test)
+        //def message = mapper.writeValueAsString(test)
         tangoLoggerType = "I";
         tangoLoggerOperation = "ExecutorController.testExecutionRequest";
         tangoLoggerMessage = ("Test plan with ${testDescriptor.getTest_uuid()} will be executed. Test request received from curator: ${message}");
