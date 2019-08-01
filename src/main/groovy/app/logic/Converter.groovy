@@ -140,7 +140,8 @@ class Converter {
 
         tangoLoggerType = "D";
         tangoLoggerOperation = "Converter.getTestDescriptor";
-        tangoLoggerMessage = ("Read test descriptor: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testDescriptor)}");
+        //tangoLoggerMessage = ("Read test descriptor: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(testDescriptor)}");
+        tangoLoggerMessage = ("Read test descriptor: \n ${mapper.writeValueAsString(testDescriptor)}");
         tangoLoggerStatus = "200";
         tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
@@ -318,7 +319,8 @@ class Converter {
 
         tangoLoggerType = "D";
         tangoLoggerOperation = "Converter.getDockerCompose";
-        tangoLoggerMessage = ("Convert test descriptor in docker-compose: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dockerCompose)}");
+        //tangoLoggerMessage = ("Convert test descriptor in docker-compose: \n ${mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dockerCompose)}");
+        tangoLoggerMessage = ("Convert test descriptor in docker-compose: \n ${mapper.writeValueAsString(dockerCompose)}");
         tangoLoggerStatus = "200";
         tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
