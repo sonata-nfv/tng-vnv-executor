@@ -138,7 +138,7 @@ class ResponseUtils {
             tangoLoggerStatus = "200";
             tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            ObjectWriter ow = new ObjectMapper().writer()//.withDefaultPrettyPrinter();
             String json = ow.writeValueAsString(payload);
 
             tangoLoggerType = "I";
