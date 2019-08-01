@@ -55,6 +55,9 @@ class TangoLogger {
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     String timestamps = timestamp.toString();
 
+    message = message.replace("\\n", "")
+    message = message.replace("\\r", "")
+
     if(type == 'E'){
       log.error("{\"type\":\"$type\",\"timestamp\":\"$timestamps\",\"start_stop\":\"\",\"component\":\"tng-vnv-executor\",\"operation\":\"$operation\",\"message\":\"$message\",\"status\":\"$status\",\"time_elapsed\":\"\"}")
     }
