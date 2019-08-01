@@ -34,6 +34,7 @@
 
 package app.util
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
 
@@ -55,17 +56,17 @@ class TangoLogger {
     Timestamp timestamp = new Timestamp(System.currentTimeMillis());
     String timestamps = timestamp.toString();
 
-    message = message.replace("\\n", "")
-    message = message.replace("\\r", "")
+    msg = "{\"type\":\"$type\",\"timestamp\":\"$timestamps\",\"start_stop\":\"\",\"component\":\"tng-vnv-executor\",\"operation\":\"$operation\",\"message\":\"$message\",\"status\":\"$status\",\"time_elapsed\":\"\"}"
+    msg = new ObjectMapper().writeValueAsString(msg)
 
     if(type == 'E'){
-      log.error("{\"type\":\"$type\",\"timestamp\":\"$timestamps\",\"start_stop\":\"\",\"component\":\"tng-vnv-executor\",\"operation\":\"$operation\",\"message\":\"$message\",\"status\":\"$status\",\"time_elapsed\":\"\"}")
+      log.error(msg)
     }
     else if (type == 'D'){
-      log.debug("{\"type\":\"$type\",\"timestamp\":\"$timestamps\",\"start_stop\":\"\",\"component\":\"tng-vnv-executor\",\"operation\":\"$operation\",\"message\":\"$message\",\"status\":\"$status\",\"time_elapsed\":\"\"}")
+      log.debug(msg)
     }
     else if (type == 'I'){
-      log.info("{\"type\":\"$type\",\"timestamp\":\"$timestamps\",\"start_stop\":\"\",\"component\":\"tng-vnv-executor\",\"operation\":\"$operation\",\"message\":\"$message\",\"status\":\"$status\",\"time_elapsed\":\"\"}")
+      log.info(msg)
     }
   }
 }
