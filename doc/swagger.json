@@ -1,0 +1,281 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Api Documentation",
+    "version": "1.0",
+    "title": "Api Documentation",
+    "termsOfService": "urn:tos",
+    "contact": {},
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "host": "pre-int-vnv-bcn.5gtango.eu:6300",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "executor-controller",
+      "description": "Executor Controller"
+    }
+  ],
+  "paths": {
+    "/api/v1/test-executions": {
+      "post": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "Start a test",
+        "description": "Receive a test descriptor, check its validity and create the docker-compose and directories, starting the test",
+        "operationId": "testExecutionRequestUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "test",
+            "description": "test",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Test entity"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Test Descriptor is valid, test is being executed",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Test Descriptor is not valid"
+          },
+          "500": {
+            "description": "There was a problem during the test building"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/api/v1/test-executions/{test_id}/cancel": {
+      "delete": {
+        "tags": [
+          "executor-controller"
+        ],
+        "summary": "Cancel an executing test",
+        "description": "Receive a test test_uuid and callbacks, check if it is running and cancel it if possible",
+        "operationId": "testCancelExecutionRequestUsingDELETE",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "callbacks",
+            "description": "callbacks",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Test entity"
+            }
+          },
+          {
+            "name": "test_id",
+            "in": "path",
+            "description": "test_id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test has been cancelled",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "The test with the provided test_uuid was not found"
+          },
+          "500": {
+            "description": "There was a problem during the test cancelling"
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "PostTestSuiteResponse entity": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "running",
+            "cancel",
+            "finish"
+          ]
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "title": "PostTestSuiteResponse entity",
+      "description": "Complete data of a callback descriptor"
+    },
+    "Test entity": {
+      "type": "object",
+      "properties": {
+        "callbacks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PostTestSuiteResponse entity"
+          }
+        },
+        "service_instantiation_time": {
+          "type": "string"
+        },
+        "test": {
+          "$ref": "#/definitions/TestDescriptor entity"
+        }
+      },
+      "title": "Test entity",
+      "description": "Complete data of a test"
+    },
+    "TestDescriptor entity": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "network_service_descriptor_uuid": {
+          "type": "string"
+        },
+        "package_descriptor_uuid": {
+          "type": "string"
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TestDescriptorPhase"
+          }
+        },
+        "service_instance_uuid": {
+          "type": "string"
+        },
+        "test_descriptor_uuid": {
+          "type": "string"
+        },
+        "vendor": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "title": "TestDescriptor entity",
+      "description": "Complete data of a test descriptor"
+    },
+    "TestDescriptorExercisePhase": {
+      "title": "TestDescriptorExercisePhase",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TestDescriptorVerificationPhase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TestDescriptorExercisePhaseStep"
+              }
+            }
+          },
+          "title": "TestDescriptorExercisePhase"
+        }
+      ]
+    },
+    "TestDescriptorPhase": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TestDescriptorPhaseStep"
+          }
+        }
+      },
+      "title": "TestDescriptorPhase"
+    },
+    "TestDescriptorPhaseStep": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "title": "TestDescriptorPhaseStep"
+    },
+    "TestDescriptorSetupPhase": {
+      "title": "TestDescriptorSetupPhase",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TestDescriptorVerificationPhase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TestDescriptorSetupPhaseStep"
+              }
+            }
+          },
+          "title": "TestDescriptorSetupPhase"
+        }
+      ]
+    },
+    "TestDescriptorVerificationPhase": {
+      "title": "TestDescriptorVerificationPhase",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TestDescriptorVerificationPhase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TestDescriptorVerificationPhaseStep"
+              }
+            }
+          },
+          "title": "TestDescriptorVerificationPhase"
+        }
+      ]
+    }
+  }
+}

@@ -56,9 +56,7 @@ http://<server>:<port>/actuator/health
 
 ### Swagger UI
 
-Swagger UI can be accessed at
-
-http://server:port/swagger-ui.html
+Please, check the API in this swagger file: [swagger.json](https://github.com/sonata-nfv/tng-vnv-executor/blob/master/doc/swagger.json)
 
 ## Dependencies
 
@@ -85,7 +83,6 @@ This 5GTANGO component is published under Apache 2.0 license. Please see the [LI
 The following lead developers are responsible for this repository and have admin rights. They can, for example, merge pull requests.
 
 * Santiago Rodríguez ([srodriguezOPT](https://github.com/srodriguezOPT))
-* Laura Álvarez ([LauraAnt](https://github.com/LauraAnt))
 * Felipe Vicens ([felipevicens](https://github.com/felipevicens))
 * José Bonnet ([jbonnet](https://github.com/jbonnet))
 
