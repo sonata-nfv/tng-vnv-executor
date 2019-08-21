@@ -127,7 +127,7 @@ class Executor {
                         response.setTest_uuid(testId)
                         response.setStatus("ERROR")
                         response.setMessage(tangoLoggerMessage)
-                        responseUtils.postCallback(" ${ callback.getPath().replace("<test_uuid>",testId)}", response)
+                        responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                     }
                     return
                 }
