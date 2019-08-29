@@ -1,10 +1,9 @@
 [![Build Status](http://jenkins.sonata-nfv.eu/buildStatus/icon?job=tng-vnv-executor/master)](https://jenkins.sonata-nfv.eu/job/tng-vnv-executor)
 
+<p align="center"><img src="https://github.com/sonata-nfv/tng-api-gtw/wiki/images/sonata-5gtango-logo-500px.png" /></p>
 
 # Executor for 5GTANGO Verification and Validation
 This is a [5GTANGO](http://www.5gtango.eu) component to execute the Verification and Validation Tests
-
-## What it is
 
 The Executor module is responsible for executing the Verification and Validation tests requested by the [Curator](https://github.com/sonata-nfv/tng-vnv-curator) component.
 
@@ -14,18 +13,28 @@ Once tests are finished, Executor check validation and verification conditions, 
 
 Please, visit the associated [wiki](https://github.com/sonata-nfv/tng-vnv-executor/wiki) to obtain more information (architecture, workflow, examples, REST Api, etc)
 
+## Installing / Getting Started
+
+This component is implemented in Spring Boot 2.1.3, using Java 11
+
 ## Build from source code
 
-This will generate a docker image with the latest version of the code. Before building, a test suite is executed.
-
 ```bash
-./gradlew clean test build docker
+$ git clone https://github.com/sonata-nfv/tng-vnv-executor.git # Clone this repository
+$ cd tng-vnv-executor
+$ gradlew bootRun
 ```
 
 ## Run the docker image
 
+This will generate a docker image with the latest version of the code. Before building, a test suite is executed.
 ```bash
- docker run -d -it --name tng-vnv-executor \
+$ gradlew clean test build docker
+```
+
+To execute the container:
+```bash
+$ docker run -d -it --name tng-vnv-executor \
  -e CALLBACKS='enabled' \
  -e DELETE_FINISHED_TEST='disabled' \
  -e RESULTS_REPO_URL=<RESULTS_REPO_URL> \
@@ -34,7 +43,7 @@ This will generate a docker image with the latest version of the code. Before bu
  -v /executor:/executor \
  -p 6300:8080 \
  --network tango \
- registry.sonata-nfv.eu:5000/tng-vnv-executor:latest
+ sonatanfv/tng-vnv-executor:latest
 ```
 
 where:
@@ -48,43 +57,74 @@ where:
 - port: internally, the VnV executor uses the 8080 port. This port can be mapped to another desired port. In 5GTango environments the selected port is 6300 
 - network: network where all VnV components (planner, curator, platform adaptor and executor) are configured
 
-### Health checking
+## Developing
 
-Once started, you can check the health endpoint at
+### Build With
+We are using the Spring Boot Framework, org.springframework.boot' version '2.1.3.RELEASE' with the next dependencies (mavenCentral):
 
-http://<server>:<port>/actuator/health
+| Group | Name | Version |
+|---|---|---|
+|gradle.plugin.com.palantir.gradle.docker|gradle-docker|0.21.0
+|org.springframework.boot|spring-boot-starter-actuator|
+|org.codehaus.groovy|groovy-all:2.5.6|
+|com.fasterxml.jackson.dataformat|jackson-dataformat-yaml|2.9.8
+|org.apache.commons|commons-lang3|3.4
+|org.apache.httpcomponents|httpclient|
+|org.springframework.boot|spring-boot-starter-web|2.1.3.RELEASE
+|org.springframework.boot|spring-boot-starter-data-jpa|2.1.3.RELEASE
+|io.springfox|springfox-swagger2:2.9.2
+|io.springfox|springfox-swagger-ui:2.9.2
+|com.h2database|h2|1.4.198
+|org.spockframework|spock-core|1.2-groovy-2.4
+|org.springframework.boot|spring-boot-starter-test|
+|org.spockframework|spock-spring|1.2-groovy-2.4
 
-### Swagger UI
+### Prerequisites
+
+No specific libraries are required for building this project. The following tools are used to build the component:
+
+- `Java JDK (11+)`
+- `gradle (4.9)`
+- `docker (18.x)`
+
+### Submiting changes
+
+Changes to the repository can be requested using [this repository's issues](https://github.com/sonata-nfv/tng-vnv-executor/issues) and [pull requests](https://github.com/sonata-nfv/tng-vnv-executor/pulls) mechanisms.
+
+## Versioning
+
+For the versions available, see the [link to tags on this repository](https://github.com/sonata-nfv/tng-vnv-executor/releases).
+
+## Tests
+
+Unit tests are defined in the /src/test folder. To run these tests:
+
+```bash
+$ gradle clean test
+```
+
+## Database
+
+The Executor component uses an internal H2 in memory database that persists the data in a vnv-executor-db.mv.db file. In containerized version, this file is stored outside the container using a volume.
+
+## Api Reference
 
 Please, check the API in this swagger file: [swagger.json](https://github.com/sonata-nfv/tng-vnv-executor/blob/master/doc/swagger.json)
 
-## Dependencies
 
-- `Java JDK (10+)`
-- `gradle`
-- `docker`
-- `Spring Boot (2.1.3)`
-- `Groovy (2.5.6)`
-- `Swagger (2.9.2)`
+## Licensing
 
-## Contributing
-Contributing to the V&V Executor is really easy. You must:
-
-1. Clone [this repository](http://github.com/sonata-nfv/tng-vnv-executor);
-1. Work on your proposed changes, preferably through submiting [issues](https://github.com/sonata-nfv/tng-vnv-executor/issues);
-1. Submit a Pull Request;
-1. Follow/answer related [issues](https://github.com/sonata-nfv/tng-vnv-executor/issues) (see Feedback, below).
-
-## License
 This 5GTANGO component is published under Apache 2.0 license. Please see the [LICENSE](LICENSE) file for more details.
 
 ## Lead Developers
 
 The following lead developers are responsible for this repository and have admin rights. They can, for example, merge pull requests.
 
-* Santiago Rodríguez ([srodriguezOPT](https://github.com/srodriguezOPT))
+* Santiago Rodríguez ([srodriguez](https://github.com/srodriguezOPT))
 * Felipe Vicens ([felipevicens](https://github.com/felipevicens))
 * José Bonnet ([jbonnet](https://github.com/jbonnet))
 
-## Feedback
-Please use the [GitHub issues](https://github.com/sonata-nfv/tng-vnv-executor/issues) and the 5GTANGO Verification and Validation group mailing list `5gtango-dev@list.atosresearch.eu` for feedback.
+## Feedback-Channel
+
+- You may use the mailing list [sonata-dev-list](mailto:sonata-dev@lists.atosresearch.eu)
+- Gitter room [![Gitter](https://badges.gitter.im/sonata-nfv/Lobby.svg)](https://gitter.im/sonata-nfv/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
