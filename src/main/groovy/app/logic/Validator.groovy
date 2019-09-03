@@ -245,6 +245,7 @@ class Validator {
                                 response.setMessage(tangoLoggerMessage)
                                 responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                             }
+                            return
                         }
                     }
                 }
