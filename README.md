@@ -109,7 +109,7 @@ The Executor component uses an internal H2 in memory database that persists the 
 
 ## Api Reference
 
-Please, check the API in this swagger file: [swagger.json](https://github.com/sonata-nfv/tng-vnv-executor/blob/master/doc/swagger.json)
+Please, check the API in this swagger file: [swagger.json](https://github.com/sonata-nfv/tng-vnv-executor/blob/master/doc/swagger.json), or visit this [url](https://sonata-nfv.github.io/tng-doc/) and select the "5GTANGO V&V Executor API v1" spec in the drop down menu.
 
 
 ## Licensing
