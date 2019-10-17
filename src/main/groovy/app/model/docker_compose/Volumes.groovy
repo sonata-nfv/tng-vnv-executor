@@ -32,54 +32,18 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.database
+package app.model.docker_compose
 
-import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.annotation.LastModifiedDate
-import org.springframework.data.jpa.domain.support.AuditingEntityListener
+class Volumes {
 
-import javax.persistence.*
+    String driver
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-class TestExecution implements Serializable {
+    Map<String, String> driver_opts = new HashMap<>()
 
-    @Id
-    @Column(name = "test_uuid", updatable = false, nullable = false)
-    String test_uuid
+    Volumes() {}
 
-    @Column
-    @Enumerated(EnumType.STRING)
-    TestState state
-
-    @Column
-    String executionHost
-
-    @Lob
-    @Column
-    String dockerCompose
-
-    @CreatedDate
-    @Column(name = "created", nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    Date created
-
-    @LastModifiedDate
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "lastModified")
-    Date lastModifiedDate
-
-
-    TestExecution() {}
-
-    TestExecution(String uuid, String dockerCompose, String executionHost) {
-        this.test_uuid = uuid
-        this.dockerCompose = dockerCompose
-        this.state = TestState.STARTING
-        this.executionHost = executionHost
-    }
-
-    enum TestState {
-        RUNNING, COMPLETED, CANCELLING, CANCELLED, STARTING, ERROR
+    @Override
+    String toString() {
+        return "Volumes{driver=${driver}, driver_opts=${driver_opts}}"
     }
 }

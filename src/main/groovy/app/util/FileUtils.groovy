@@ -63,6 +63,12 @@ class FileUtils {
     @Value('${DC.COMPOSE_FILES_PATH}')
     private String COMPOSE_FILES_PATH
 
+    @Value('${DC.DOCKER_COMPOSE_UP_SCRIPT}')
+    private String DOCKER_COMPOSE_UP_SCRIPT
+
+    @Value('${DC.DOCKER_COMPOSE_DOWN_SCRIPT}')
+    private String DOCKER_COMPOSE_DOWN_SCRIPT
+
     private static FileUtils instance = null
 
     //Tango logger
@@ -101,6 +107,8 @@ class FileUtils {
 
         def sharedScriptFile = new File(String.format(WAIT_FOR_SCRIPT))
         //def scriptOriginal = new File("/wait_for.sh")
+        def dockerComposeUpScriptFile = new File(String.format(DOCKER_COMPOSE_UP_SCRIPT))
+        def dockerComposeDownScriptFile = new File(String.format(DOCKER_COMPOSE_DOWN_SCRIPT))
 
         if (!sharedScriptFile.exists()){
             tangoLoggerType = "I";
@@ -146,6 +154,104 @@ class FileUtils {
             tangoLoggerType = "I";
             tangoLoggerOperation = "FileUtils.createTestDirectories";
             tangoLoggerMessage = ("/wait_for.sh is already copied to ${WAIT_FOR_SCRIPT}");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+        }
+
+        if (!dockerComposeUpScriptFile.exists()){
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "FileUtils.createTestDirectories";
+            tangoLoggerMessage = ("/dockerComposeUp.sh is not yet copied");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
+            def process = Runtime.getRuntime().exec("mv /dockerComposeUp.sh /executor/bash_scripts/dockerComposeUp.sh")
+
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "FileUtils.createTestDirectories";
+            tangoLoggerMessage = ("Executing: mv /dockerComposeUp.sh /executor/bash_scripts/dockerComposeUp.sh");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
+            def stdout = new StringWriter()
+            def stderr = new StringWriter()
+            process.waitForProcessOutput(stdout, stderr)
+
+            if (!process.toString().contains("exitValue=0")) {
+                tangoLoggerType = "E";
+                tangoLoggerOperation = "FileUtils.createTestDirectories";
+                tangoLoggerMessage = ("Error moving dockerComposeUp.sh script");
+                tangoLoggerStatus = "500";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+            }
+            process = Runtime.getRuntime().exec("dos2unix /executor/bash_scripts/dockerComposeUp.sh")
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "FileUtils.createTestDirectories";
+            tangoLoggerMessage = ("Executing: dos2unix /executor/bash_scripts/dockerComposeUp.sh");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
+            process.waitForProcessOutput(stdout, stderr)
+            if (!process.toString().contains("exitValue=0")) {
+                tangoLoggerType = "E";
+                tangoLoggerOperation = "FileUtils.createTestDirectories";
+                tangoLoggerMessage = ("Error executing dos2unix against dockerComposeUp.sh script");
+                tangoLoggerStatus = "500";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+            }
+        } else {
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "FileUtils.createTestDirectories";
+            tangoLoggerMessage = ("/dockerComposeUp.sh is already copied to ${DOCKER_COMPOSE_UP_SCRIPT}");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+        }
+
+        if (!dockerComposeDownScriptFile.exists()){
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "FileUtils.createTestDirectories";
+            tangoLoggerMessage = ("/dockerComposeDown.sh is not yet copied");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
+            def process = Runtime.getRuntime().exec("mv /dockerComposeDown.sh /executor/bash_scripts/dockerComposeDown.sh")
+
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "FileUtils.createTestDirectories";
+            tangoLoggerMessage = ("Executing: mv /dockerComposeDown.sh /executor/bash_scripts/dockerComposeDown.sh");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
+            def stdout = new StringWriter()
+            def stderr = new StringWriter()
+            process.waitForProcessOutput(stdout, stderr)
+
+            if (!process.toString().contains("exitValue=0")) {
+                tangoLoggerType = "E";
+                tangoLoggerOperation = "FileUtils.createTestDirectories";
+                tangoLoggerMessage = ("Error moving dockerComposeDown.sh script");
+                tangoLoggerStatus = "500";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+            }
+            process = Runtime.getRuntime().exec("dos2unix /executor/bash_scripts/dockerComposeDown.sh")
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "FileUtils.createTestDirectories";
+            tangoLoggerMessage = ("Executing: dos2unix /executor/bash_scripts/dockerComposeDown.sh");
+            tangoLoggerStatus = "200";
+            tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+
+            process.waitForProcessOutput(stdout, stderr)
+            if (!process.toString().contains("exitValue=0")) {
+                tangoLoggerType = "E";
+                tangoLoggerOperation = "FileUtils.createTestDirectories";
+                tangoLoggerMessage = ("Error executing dos2unix against dockerComposeDown.sh script");
+                tangoLoggerStatus = "500";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
+            }
+        } else {
+            tangoLoggerType = "I";
+            tangoLoggerOperation = "FileUtils.createTestDirectories";
+            tangoLoggerMessage = ("/dockerComposeDown.sh is already copied to ${DOCKER_COMPOSE_DOWN_SCRIPT}");
             tangoLoggerStatus = "200";
             tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
         }
