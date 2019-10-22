@@ -51,6 +51,8 @@ class Test {
 
     String service_instantiation_time
 
+    String execution_host
+
     Callback getCallback(Callback.CallbackTypes type) {
         if(callbacks) {
             for(callback in callbacks) {

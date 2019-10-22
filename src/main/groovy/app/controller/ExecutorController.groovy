@@ -158,7 +158,7 @@ class ExecutorController {
         }
 
         try {
-            def testExecution = new TestExecution(testDescriptor.test_uuid, converter.serializeDockerCompose(dockerCompose), testDescriptor.execution_host)
+            def testExecution = new TestExecution(testDescriptor.test_uuid, converter.serializeDockerCompose(dockerCompose), test.execution_host)
             testExecutionRepository.save(testExecution)
         } catch (Exception e) {
             tangoLoggerType = "E";

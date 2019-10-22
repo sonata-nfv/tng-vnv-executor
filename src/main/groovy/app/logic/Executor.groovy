@@ -95,10 +95,10 @@ class Executor {
 
                 try {
                     
-                    process = Runtime.getRuntime().exec("sh /executor/bash_scripts/dockerComposeUp.sh ${testId} ${test.getTest().execution_host}")
+                    process = Runtime.getRuntime().exec("sh /executor/bash_scripts/dockerComposeUp.sh ${testId} ${test.execution_host}")
                     tangoLoggerType = "I";
                     tangoLoggerOperation = "Executor.executeTest";
-                    tangoLoggerMessage = ("Executing: sh /executor/bash_scripts/dockerComposeUp.sh ${testId} ${test.getTest().execution_host}");
+                    tangoLoggerMessage = ("Executing: sh /executor/bash_scripts/dockerComposeUp.sh ${testId} ${test.execution_host}");
                     tangoLoggerStatus = "200";
                     tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
@@ -223,10 +223,10 @@ class Executor {
 
                 //Execute docker-compose down command
                 try {
-                    process = Runtime.getRuntime().exec("sh /executor/bash_scripts/dockerComposeDown.sh ${testId} ${test.getTest().execution_host}")
+                    process = Runtime.getRuntime().exec("sh /executor/bash_scripts/dockerComposeDown.sh ${testId} ${test.execution_host}")
                     tangoLoggerType = "I";
                     tangoLoggerOperation = "Executor.executeTest";
-                    tangoLoggerMessage = ("Executing: sh /executor/bash_scripts/dockerComposeDown.sh ${testId} ${test.getTest().execution_host}");
+                    tangoLoggerMessage = ("Executing: sh /executor/bash_scripts/dockerComposeDown.sh ${testId} ${test.execution_host}");
                     tangoLoggerStatus = "200";
                     tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 

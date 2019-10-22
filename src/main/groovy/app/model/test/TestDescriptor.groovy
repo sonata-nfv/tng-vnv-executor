@@ -48,7 +48,6 @@ class TestDescriptor {
     String name
     String vendor
     String version
-    String execution_host
     String test_descriptor_uuid
     String package_descriptor_uuid
     String network_service_descriptor_uuid
