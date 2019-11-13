@@ -43,7 +43,7 @@ import org.springframework.test.context.TestPropertySource
 import spock.lang.Specification
 
 @SpringBootTest(classes = [Converter.class, GeneralConfig.class, ApplicationConfig.class])
-@TestPropertySource("classpath:application.properties")
+@TestPropertySource("classpath:application-test.properties")
 class TestDescriptionErrorSpec extends Specification {
 
     @Autowired

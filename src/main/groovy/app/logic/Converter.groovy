@@ -37,6 +37,7 @@ package app.logic
 import app.model.docker_compose.DockerCompose
 import app.model.docker_compose.Service
 
+import app.model.docker_compose.Volumes
 import app.model.test.*
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.JsonMappingException
@@ -59,6 +60,18 @@ class Converter {
 
     @Value('${DC.VOLUME_PATH}')
     String VOLUME_PATH
+
+    @Value('${DC.PATH_TO_PROBE}')
+    String PATH_TO_PROBE
+
+    @Value('${DC.ADDRESS_NFS}')
+    String ADDRESS_NFS
+
+    @Value('${VNV_NFS_SERVER_IP}')
+    String VNV_NFS_SERVER_IP
+
+    @Value('${DC.TEST_PATH_NFS}')
+    String TEST_PATH_NFS
 
     @Value('${TD.ERROR.NO_PHASES_INFO}')
     String ERROR_NO_PHASES_INFO
@@ -252,8 +265,8 @@ class Converter {
             service.volumes.add(String.format(VOLUME_COMPOSE_FILE, testDescriptor.test_uuid))
             service.volumes.add(String.format(VOLUME_DOCKER_SOCK))
             service.volumes.add(String.format(VOLUME_DOCKER))
-            service.volumes.add(String.format(VOLUME_PATH, testDescriptor.test_uuid))
-
+            service.volumes.add(String.format(PATH_TO_PROBE))
+            //service.volumes.add(String.format(VOLUME_PATH, testDescriptor.test_uuid))
             if (waitForCmd.size() != 0) {
                 service.volumes.add("${WAIT_FOR_SCRIPT}:${WAIT_FOR_SCRIPT}".toString())
             }
@@ -315,6 +328,14 @@ class Converter {
             }
 
             dockerCompose.services.put(service.name, service)
+
+            def volumes = new Volumes()
+            volumes.driver = "local"
+            volumes.driver_opts.put("type", "nfs")
+            volumes.driver_opts.put("o", String.format(ADDRESS_NFS, VNV_NFS_SERVER_IP))
+            volumes.driver_opts.put("device", ":" + String.format(TEST_PATH_NFS, testDescriptor.test_uuid))
+
+            dockerCompose.volumes.put("data", volumes)
         }
 
         tangoLoggerType = "D";

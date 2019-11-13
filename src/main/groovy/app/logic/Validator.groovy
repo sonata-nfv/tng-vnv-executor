@@ -207,11 +207,12 @@ class Validator {
                             }
 
                             //Saving result in repo as ERROR
+                            def resultsUuid
                             try{
                                 instant = testExecution.lastModifiedDate.toInstant()
                                 result.ended_at=instant.atOffset(ZoneOffset.UTC).toString()
                                 result.status="ERROR"
-                                responseUtils.postTestResult(repoUrl, result)
+                                resultsUuid = responseUtils.postTestResult(repoUrl, result)
                             } catch (Exception ex){
                                 if (CALLBACKS.toUpperCase()=="ENABLED") {
                                     callback = test.getCallback(Callback.CallbackTypes.cancel)
@@ -243,6 +244,8 @@ class Validator {
                                 response.setTest_uuid(testId)
                                 response.setStatus("ERROR")
                                 response.setMessage(tangoLoggerMessage)
+                                response.setResults_uuid(resultsUuid)
+
                                 responseUtils.postCallback("${callback.getPath().replace("<test_uuid>",testId)}", response)
                             }
                             return

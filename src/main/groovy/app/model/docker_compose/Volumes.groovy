@@ -32,35 +32,18 @@
  * partner consortium (www.5gtango.eu).
  */
 
-package app.model.test
+package app.model.docker_compose
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
+class Volumes {
 
-@JsonIgnoreProperties
-@ApiModel(value = "Test entity", description = "Complete data of a test")
-class Test {
+    String driver
 
-    @ApiModelProperty(required = false, hidden = true)
-    String uuid
+    Map<String, String> driver_opts = new HashMap<>()
 
-    List<Callback> callbacks = new ArrayList<>()
+    Volumes() {}
 
-    TestDescriptor test
-
-    String service_instantiation_time
-
-    String execution_host
-
-    Callback getCallback(Callback.CallbackTypes type) {
-        if(callbacks) {
-            for(callback in callbacks) {
-                if(type.equalsToString(callback.name)) {
-                    return callback
-                }
-            }
-        }
-        return null
+    @Override
+    String toString() {
+        return "Volumes{driver=${driver}, driver_opts=${driver_opts}}"
     }
 }

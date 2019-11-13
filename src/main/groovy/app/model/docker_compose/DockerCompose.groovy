@@ -38,9 +38,10 @@ class DockerCompose {
 
     String version = "'2.2'"
     Map<String, Service> services = new HashMap<>()
+    Map<String, Volumes> volumes = new HashMap<>()
 
     @Override
     String toString() {
-        return "DockerCompose{version=${version}, services=${services.toString()}}"
+        return "DockerCompose{version=${version}, services=${services.toString()}, volumes=${volumes.toString()}}"
     }
 }

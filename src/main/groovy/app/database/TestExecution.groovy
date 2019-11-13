@@ -52,6 +52,9 @@ class TestExecution implements Serializable {
     @Enumerated(EnumType.STRING)
     TestState state
 
+    @Column
+    String executionHost
+
     @Lob
     @Column
     String dockerCompose
@@ -69,10 +72,11 @@ class TestExecution implements Serializable {
 
     TestExecution() {}
 
-    TestExecution(String uuid, String dockerCompose) {
+    TestExecution(String uuid, String dockerCompose, String executionHost) {
         this.test_uuid = uuid
         this.dockerCompose = dockerCompose
         this.state = TestState.STARTING
+        this.executionHost = executionHost
     }
 
     enum TestState {

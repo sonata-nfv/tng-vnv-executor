@@ -43,10 +43,16 @@ RUN mkdir /executor
 ENV CALLBACKS="enabled"
 ENV DELETE_FINISHED_TEST="disabled"
 ENV RESULTS_REPO_URL="http://tng-rep:4012"
+ENV VNV_NFS_SERVER_IP="tng-vnv"
+ENV VNV_NFS_PATH="/executor"
 
 ADD wait_for.sh /wait_for.sh
+ADD dockerComposeUp.sh /dockerComposeUp.sh
+ADD dockerComposeDown.sh /dockerComposeDown.sh
 
-RUN chmod +x /wait_for.sh
+RUN chmod +x /wait_for.sh && \
+    chmod +x /dockerComposeUp.sh && \
+    chmod +x /dockerComposeDown.sh
 
 ADD tng-vnv-executor.jar app.jar
 ADD application.properties application.properties

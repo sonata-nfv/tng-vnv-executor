@@ -38,6 +38,8 @@ $ docker run -d -it --name tng-vnv-executor \
  -e CALLBACKS='enabled' \
  -e DELETE_FINISHED_TEST='disabled' \
  -e RESULTS_REPO_URL=<RESULTS_REPO_URL> \
+ -e VNV_NFS_SERVER_IP='tng-vnv' \
+ -e VNV_NFS_PATH='/executor' \
  -v /var/run/docker.sock:/var/run/docker.sock \
  -v /usr/bin/docker:/usr/bin/docker \
  -v /executor:/executor \
@@ -54,6 +56,8 @@ where:
   - values: enabled/disabled
   - default: enabled
 - RESULTS_REPO_URL: mandatory environment variable that contains the tests results repository http://host:port URL where the results will be stored
+- VNV_NFS_SERVER_IP: variable that contains VNV and NFS IP. By default, "tng-vnv"
+- VNV_NFS_PATH: variable that contains NFS path. By default, "/executor"
 - port: internally, the VnV executor uses the 8080 port. This port can be mapped to another desired port. In 5GTango environments the selected port is 6300 
 - network: network where all VnV components (planner, curator, platform adaptor and executor) are configured
 

@@ -82,6 +82,8 @@ class Executor {
                 def callback
                 Process process
                 def testExecution = testExecutionRepository.findById(testId).orElse(null) as TestExecution
+                def stdout = new StringWriter()
+                def stderr = new StringWriter()
 
                 //Execute docker-compose up command
 
@@ -92,20 +94,23 @@ class Executor {
                 tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
                 try {
-                    process = Runtime.getRuntime().exec("docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} up -d")
-
+                    
+                    process = Runtime.getRuntime().exec("sh /executor/bash_scripts/dockerComposeUp.sh ${testId} ${test.execution_host}")
                     tangoLoggerType = "I";
                     tangoLoggerOperation = "Executor.executeTest";
-                    tangoLoggerMessage = ("Executing: docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} up -d");
+                    tangoLoggerMessage = ("Executing: sh /executor/bash_scripts/dockerComposeUp.sh ${testId} ${test.execution_host}");
                     tangoLoggerStatus = "200";
                     tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
-                    def stdout = new StringWriter()
-                    def stderr = new StringWriter()
                     process.waitForProcessOutput(stdout, stderr)
 
                     if (!process.toString().contains("exitValue=0")) {
-                        throw new Exception("FAILED")
+                        File file = new File("stdout.txt")
+                        file.write(stdout.toString())
+                        def lines = file.readLines()
+                        def lastLine = lines.get(lines.size() - 2)
+
+                        throw new Exception("${lastLine}")
                     }
                 } catch (Exception e) {
 
@@ -148,30 +153,7 @@ class Executor {
 
                 //Wait for completion
                 try {
-                    /*def exitedProbes
 
-                    while (exitedProbes < dockerCompose.services.size()){
-
-                        exitedProbes = 0
-
-                        for (service in dockerCompose.services) {
-                            logger.info("waiting for ${testId}-${service.value.getName()}")
-                            logger.info("sh /executor/bash_scripts/wait_for.sh \"${service.value.getName()}\" \"${testId}\" \"/executor/compose_files/${testId}-docker-compose.yml\"")
-                            process = Runtime.getRuntime().exec("sh /executor/bash_scripts/wait_for.sh ${service.value.getName()} ${testId} /executor/compose_files/${testId}-docker-compose.yml")
-                            //process.waitFor()
-                            process.waitForOrKill(30000)
-                            logger.info("> ${process}")
-                            if (process.toString().contains("exitValue=0")) {
-                                logger.info("${testId}-${service.value.getName()} finished OK")
-                                exitedProbes = exitedProbes +1
-                            } else {
-                                logger.info("${testId}-${service.value.getName()} NOT finished")
-                                if (!process.toString().contains("exitValue=143")){
-                                    throw new Exception("FAILED")
-                                }
-                            }
-                        }
-                    }*/
                     for (service in dockerCompose.services) {
                         tangoLoggerType = "I";
                         tangoLoggerOperation = "Executor.executeTest";
@@ -186,9 +168,10 @@ class Executor {
                         tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
                         process = Runtime.getRuntime().exec("sh /executor/bash_scripts/wait_for.sh ${service.value.getName()} ${testId} /executor/compose_files/${testId}-docker-compose.yml")
-                        def stdout = new StringWriter()
-                        def stderr = new StringWriter()
-                        process.waitForProcessOutput(stdout, stderr)
+                        def stdoutw = new StringWriter()
+                        def stderrw = new StringWriter()
+
+                        process.waitForProcessOutput(stdoutw, stderrw)
 
                         tangoLoggerType = "I";
                         tangoLoggerOperation = "Executor.executeTest";
@@ -203,7 +186,12 @@ class Executor {
                             tangoLoggerStatus = "500";
                             tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
-                            throw new Exception("FAILED")
+                            File file = new File("stdout.txt")
+                            file.write(stdout.toString())
+                            def lines = file.readLines()
+                            def lastLine = lines.get(lines.size() - 2)
+
+                            throw new Exception("${lastLine}")
                         }
                     }
                 } catch (Exception e) {
@@ -235,23 +223,22 @@ class Executor {
 
                 //Execute docker-compose down command
                 try {
-                    process = Runtime.getRuntime().exec("docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v")
-
+                    process = Runtime.getRuntime().exec("sh /executor/bash_scripts/dockerComposeDown.sh ${testId} ${test.execution_host}")
                     tangoLoggerType = "I";
                     tangoLoggerOperation = "Executor.executeTest";
-                    tangoLoggerMessage = ("Executing: docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v");
+                    tangoLoggerMessage = ("Executing: sh /executor/bash_scripts/dockerComposeDown.sh ${testId} ${test.execution_host}");
                     tangoLoggerStatus = "200";
                     tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 
-                    def stdout = new StringWriter()
-                    def stderr = new StringWriter()
-                    process.waitForProcessOutput(stdout, stderr)
+                    def stdoutd = new StringWriter()
+                    def stderrd = new StringWriter()
+                    process.waitForProcessOutput(stdoutd, stderrd)
                     if (!process.toString().contains("exitValue=0")) {
                         throw new Exception("FAILED")
                     }
                 } catch (Exception e) {
                     tangoLoggerType = "E";
-                    tangoLoggeroperation = "Executor.executeTest";
+                    tangoLoggerOperation = "Executor.executeTest";
                     tangoLoggerMessage = ("Error executing docker-compose down command. Sending message to ${callback.path}");
                     tangoLoggerStatus = "500";
                     tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
@@ -281,11 +268,12 @@ class Executor {
 
                 //docker-compose down
                 try {
-                    def process = Runtime.getRuntime().exec("docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v")
+                    def testExecution = testExecutionOpt.get()
+                    def process = Runtime.getRuntime().exec("sh /executor/bash_scripts/dockerComposeDown.sh ${testId} ${testExecution.executionHost}")
 
                     tangoLoggerType = "I";
                     tangoLoggerOperation = "Executor.cancelTest";
-                    tangoLoggerMessage = ("Executing: docker-compose -f /executor/compose_files/${testId}-docker-compose.yml -p ${testId} down -v");
+                    tangoLoggerMessage = ("Executing: sh /executor/bash_scripts/dockerComposeDown.sh ${testId} ${testExecution.executionHost}");
                     tangoLoggerStatus = "200";
                     tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus)
 

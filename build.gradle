@@ -54,6 +54,6 @@ bootJar {
 docker {
     name "${dockerTag}"
     dockerfile file('src/main/docker/Dockerfile')
-    files tasks.bootJar.outputs, 'src/main/resources/application.properties', 'src/main/docker/wait_for.sh'
+    files tasks.bootJar.outputs, 'src/main/resources/application.properties', 'src/main/docker/wait_for.sh', 'src/main/docker/dockerComposeUp.sh', 'src/main/docker/dockerComposeDown.sh'
     dependsOn tasks.bootJar
 }
