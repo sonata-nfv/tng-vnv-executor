@@ -64,6 +64,9 @@ class Converter {
     @Value('${DC.PATH_TO_PROBE}')
     String PATH_TO_PROBE
 
+    @Value('${NFS_ACTIVE}')
+    String NFS_ACTIVE
+
     @Value('${DC.ADDRESS_NFS}')
     String ADDRESS_NFS
 
@@ -265,8 +268,18 @@ class Converter {
             service.volumes.add(String.format(VOLUME_COMPOSE_FILE, testDescriptor.test_uuid))
             service.volumes.add(String.format(VOLUME_DOCKER_SOCK))
             service.volumes.add(String.format(VOLUME_DOCKER))
-            service.volumes.add(String.format(PATH_TO_PROBE))
-            //service.volumes.add(String.format(VOLUME_PATH, testDescriptor.test_uuid))
+            if(NFS_ACTIVE.toUpperCase() == "ENABLED") {
+                tangoLoggerType = "D";
+                tangoLoggerOperation = "Converter.getDockerCompose";
+                tangoLoggerMessage = ("NFS ${NFS_ACTIVE.toUpperCase()} - PATH TO PROBE: ${PATH_TO_PROBE}");
+                tangoLoggerStatus = "200";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus);
+
+                service.volumes.add(String.format(PATH_TO_PROBE))
+            } else {
+                service.volumes.add(String.format(VOLUME_PATH, testDescriptor.test_uuid))
+            }
+
             if (waitForCmd.size() != 0) {
                 service.volumes.add("${WAIT_FOR_SCRIPT}:${WAIT_FOR_SCRIPT}".toString())
             }
@@ -329,13 +342,21 @@ class Converter {
 
             dockerCompose.services.put(service.name, service)
 
-            def volumes = new Volumes()
-            volumes.driver = "local"
-            volumes.driver_opts.put("type", "nfs")
-            volumes.driver_opts.put("o", String.format(ADDRESS_NFS, VNV_NFS_SERVER_IP))
-            volumes.driver_opts.put("device", ":" + String.format(TEST_PATH_NFS, testDescriptor.test_uuid))
+            if(NFS_ACTIVE.toUpperCase() == "ENABLED") {
+                tangoLoggerType = "D";
+                tangoLoggerOperation = "Converter.getDockerCompose";
+                tangoLoggerMessage = ("NFS: ${NFS_ACTIVE.toUpperCase()}");
+                tangoLoggerStatus = "200";
+                tangoLogger.log(tangoLoggerType, tangoLoggerOperation, tangoLoggerMessage, tangoLoggerStatus);
 
-            dockerCompose.volumes.put("data", volumes)
+                def volumes = new Volumes()
+                volumes.driver = "local"
+                volumes.driver_opts.put("type", "nfs")
+                volumes.driver_opts.put("o", String.format(ADDRESS_NFS, VNV_NFS_SERVER_IP))
+                volumes.driver_opts.put("device", ":" + String.format(TEST_PATH_NFS, testDescriptor.test_uuid))
+
+                dockerCompose.volumes.put("data", volumes)
+            }
         }
 
         tangoLoggerType = "D";

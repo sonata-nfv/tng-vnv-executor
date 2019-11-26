@@ -43,6 +43,7 @@ RUN mkdir /executor
 ENV CALLBACKS="enabled"
 ENV DELETE_FINISHED_TEST="disabled"
 ENV RESULTS_REPO_URL="http://tng-rep:4012"
+ENV NFS_ACTIVE="disabled"
 ENV VNV_NFS_SERVER_IP="tng-vnv"
 ENV VNV_NFS_PATH="/executor"
 
