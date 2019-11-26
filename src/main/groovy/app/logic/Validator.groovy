@@ -182,16 +182,18 @@ class Validator {
                         try {
                             resultsFolder = new File("/executor/tests/${testId}/output/${service}")
 
-                            for (instance in resultsFolder.listFiles()){
-
-                                for (file in instance.listFiles()) {
-                                    if (file.getName() == (condition.getFile())) {
-                                        validateConditions(condition, file)
+                            if (resultsFolder.listFiles().size() != 0) {
+                                for (instance in resultsFolder.listFiles()) {
+                                    for (file in instance.listFiles()) {
+                                        if (file.getName() == (condition.getFile())) {
+                                            validateConditions(condition, file)
+                                        }
                                     }
+
                                 }
-
+                            } else {
+                                throw new Exception("Results file was not created")
                             }
-
                             tangoLoggerType = "I";
                             tangoLoggerOperation = "Validator.executeValidation";
                             tangoLoggerMessage = ("${testId}-${service}-${condition.getName()} = ${condition.getVerdict()}");

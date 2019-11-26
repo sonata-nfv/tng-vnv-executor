@@ -137,6 +137,9 @@
             "$ref": "#/definitions/PostTestSuiteResponse entity"
           }
         },
+        "execution_host": {
+          "type": "string"
+        },
         "service_instantiation_time": {
           "type": "string"
         },
