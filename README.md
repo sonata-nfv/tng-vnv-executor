@@ -57,10 +57,10 @@ where:
   - values: enabled/disabled
   - default: enabled
 - RESULTS_REPO_URL: mandatory environment variable that contains the tests results repository http://host:port URL where the results will be stored
-- NFS_ACTIVE: variable to enable/disable nfs
+- NFS_ACTIVE: variable to enable/disable the use of a nfs server to share results files between the testing probes deployed in the execution hosts with the executor deployed in the V&V host
   - values: enabled/disabled
   - default: disabled
-- VNV_NFS_SERVER_IP: variable that contains VNV and NFS IP. By default, "tng-vnv"
+- VNV_NFS_SERVER_IP: variable that contains the NFS server IP.
 - VNV_NFS_PATH: variable that contains NFS path. By default, "/executor"
 - port: internally, the VnV executor uses the 8080 port. This port can be mapped to another desired port. In 5GTango environments the selected port is 6300 
 - network: network where all VnV components (planner, curator, platform adaptor and executor) are configured
@@ -94,6 +94,7 @@ No specific libraries are required for building this project. The following tool
 - `Java JDK (11+)`
 - `gradle (4.9)`
 - `docker (18.x)`
+- `NFS server` - If NFS_ACTIVE is enabled, a running NFS server is required. This NFS server will share probes volumes in the execution hosts with the /executor folder in the VnV host
 
 ### Submiting changes
 
